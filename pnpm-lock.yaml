@@ -10,7 +10,11 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: ^5.4.0
+<<<<<<< HEAD
         version: 5.4.0(react-hook-form@7.80.0(react@19.2.4))
+=======
+        version: 5.4.0(react-hook-form@7.79.0(react@19.2.4))
+>>>>>>> d36b65dcbdd742400a0cb2e9256f215846a32cbd
       '@tabler/icons-react':
         specifier: ^3.44.0
         version: 3.44.0(react@19.2.4)
@@ -30,8 +34,13 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       react-hook-form:
+<<<<<<< HEAD
         specifier: ^7.80.0
         version: 7.80.0(react@19.2.4)
+=======
+        specifier: ^7.79.0
+        version: 7.79.0(react@19.2.4)
+>>>>>>> d36b65dcbdd742400a0cb2e9256f215846a32cbd
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -1787,8 +1796,13 @@ packages:
     peerDependencies:
       react: ^19.2.4
 
+<<<<<<< HEAD
   react-hook-form@7.80.0:
     resolution: {integrity: sha512-4P+fk6oXsxY+6xSj7Euhc2sumQD8zQqCuVHoJwoyp9EchP+IUW9OESB7uHFJOKsIBQ4MQqYE84INJFqUCYNoOg==}
+=======
+  react-hook-form@7.79.0:
+    resolution: {integrity: sha512-mhYp/MTmXvzYX6AJcJVko0rktoIhhmRnEouObj4wF5i/tCttgJvnp1+9wRkpITZjDTqpo4IOSJqu0dBlPlV/Lw==}
+>>>>>>> d36b65dcbdd742400a0cb2e9256f215846a32cbd
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -2244,10 +2258,17 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
+<<<<<<< HEAD
   '@hookform/resolvers@5.4.0(react-hook-form@7.80.0(react@19.2.4))':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.80.0(react@19.2.4)
+=======
+  '@hookform/resolvers@5.4.0(react-hook-form@7.79.0(react@19.2.4))':
+    dependencies:
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.79.0(react@19.2.4)
+>>>>>>> d36b65dcbdd742400a0cb2e9256f215846a32cbd
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -3867,7 +3888,11 @@ snapshots:
       react: 19.2.4
       scheduler: 0.27.0
 
+<<<<<<< HEAD
   react-hook-form@7.80.0(react@19.2.4):
+=======
+  react-hook-form@7.79.0(react@19.2.4):
+>>>>>>> d36b65dcbdd742400a0cb2e9256f215846a32cbd
     dependencies:
       react: 19.2.4
 

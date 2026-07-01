@@ -16,7 +16,11 @@
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+<<<<<<< HEAD
     "react-hook-form": "^7.80.0",
+=======
+    "react-hook-form": "^7.79.0",
+>>>>>>> d36b65dcbdd742400a0cb2e9256f215846a32cbd
     "zod": "^4.4.3"
   },
   "devDependencies": {
