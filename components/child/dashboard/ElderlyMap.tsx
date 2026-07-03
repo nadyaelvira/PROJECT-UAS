@@ -81,6 +81,7 @@ export default function ElderlyMap({
         scrollWheelZoom={true}
         className="h-full w-full"
         zoomControl={false}
+        style={{ background: "#e5e3df" }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

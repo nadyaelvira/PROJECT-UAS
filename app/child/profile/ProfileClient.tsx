@@ -1,22 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-
-interface UserProfile {
-  photoUrl: string;
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-}
-
-const defaultProfile: UserProfile = {
-  photoUrl: "",
-  name: "Dian Safira",
-  address: "Jl. Merdeka No.15",
-  phone: "0812-3456-7890",
-  email: "dian@email.com",
-};
+import { useUserProfile } from "@/lib/UserProfileContext";
 
 function InfoField({ label, value }: { label: string; value: string }) {
   return (
@@ -29,22 +14,48 @@ function InfoField({ label, value }: { label: string; value: string }) {
   );
 }
 
+function EditableField({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+        {label}
+      </span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+    </div>
+  );
+}
+
 export default function ProfileClient() {
-  const [profile, setProfile] = useState<UserProfile>(defaultProfile);
+  const { profile, updateProfile } = useUserProfile();
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<UserProfile>(profile);
+  const [draft, setDraft] = useState(profile);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    setProfile((p) => ({ ...p, photoUrl: url }));
+    updateProfile({ photoUrl: url });
     setDraft((d) => ({ ...d, photoUrl: url }));
   };
 
   const handleSave = () => {
-    setProfile(draft);
+    updateProfile(draft);
     setEditing(false);
   };
 
@@ -173,32 +184,6 @@ export default function ProfileClient() {
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function EditableField({
-  label,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-        {label}
-      </span>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      />
     </div>
   );
 }
