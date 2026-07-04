@@ -98,7 +98,7 @@ export default function NotificationsClient() {
   };
 
   return (
-    <div className="max-w-4xl">
+    <div className="w-full max-w-5xl mx-auto">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>

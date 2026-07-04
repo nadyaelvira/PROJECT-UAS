@@ -61,24 +61,29 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
 
   return (
     <aside
-      className={`bg-white border-r border-gray-200 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${
+      className={`bg-white border-r border-gray-200 min-h-screen flex flex-col transition-[width] duration-300 ease-in-out flex-shrink-0 overflow-hidden ${
         isCollapsed ? "w-[72px]" : "w-64"
       }`}
     >
       {/* Logo */}
       <div className="px-3 h-16 flex items-center border-b border-gray-100 overflow-hidden flex-shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-0.5">
           <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
             <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
             </svg>
           </div>
-          {!isCollapsed && (
-            <div className="overflow-hidden">
-              <h1 className="text-lg font-bold text-gray-900 whitespace-nowrap">SafeElder</h1>
-              <p className="text-xs text-gray-400 whitespace-nowrap">Child / Family Portal</p>
-            </div>
-          )}
+          <div
+            className="overflow-hidden"
+            style={{
+              width: isCollapsed ? 0 : "auto",
+              opacity: isCollapsed ? 0 : 1,
+              transition: "width 0.2s ease, opacity 0.15s ease",
+            }}
+          >
+            <h1 className="text-lg font-bold text-gray-900 whitespace-nowrap">SafeElder</h1>
+            <p className="text-xs text-gray-400 whitespace-nowrap">Child / Family Portal</p>
+          </div>
         </div>
       </div>
 
@@ -91,19 +96,24 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center rounded-xl transition-all duration-200 ${
-                    isCollapsed
-                      ? `h-10 w-10 justify-center ${isActive ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`
-                      : `gap-3 px-3 py-2.5 ${isActive ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-200 ${
+                    isActive ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                   title={isCollapsed ? item.label : undefined}
                 >
                   <span className={`flex-shrink-0 ${isActive ? "text-blue-600" : "text-gray-400"}`}>
                     {item.icon}
                   </span>
-                  {!isCollapsed && (
-                    <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
-                  )}
+                  <span
+                    className="text-sm font-medium whitespace-nowrap overflow-hidden"
+                    style={{
+                      maxWidth: isCollapsed ? 0 : 200,
+                      opacity: isCollapsed ? 0 : 1,
+                      transition: "max-width 0.2s ease, opacity 0.15s ease",
+                    }}
+                  >
+                    {item.label}
+                  </span>
                 </Link>
               </li>
             );
@@ -112,11 +122,14 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      {!isCollapsed && (
-        <div className="px-3 py-4 border-t border-gray-100 overflow-hidden">
-          <p className="text-xs text-gray-400 text-center whitespace-nowrap">© 2026 SafeElder</p>
-        </div>
-      )}
+      <div className="px-3 py-4 border-t border-gray-100 overflow-hidden">
+        <p
+          className="text-xs text-gray-400 text-center whitespace-nowrap transition-opacity duration-200"
+          style={{ opacity: isCollapsed ? 0 : 1 }}
+        >
+          © 2026 SafeElder
+        </p>
+      </div>
     </aside>
   );
 }

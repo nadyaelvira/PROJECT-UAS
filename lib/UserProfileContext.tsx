@@ -20,6 +20,23 @@ const defaultProfile: UserProfile = {
   role: "Family Member",
 };
 
+const STORAGE_KEY = "safeelder_user_profile";
+
+function loadProfile(): UserProfile {
+  if (typeof window === "undefined") return defaultProfile;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return { ...defaultProfile, ...JSON.parse(raw) };
+  } catch {}
+  return defaultProfile;
+}
+
+function saveProfile(profile: UserProfile) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  } catch {}
+}
+
 interface UserProfileContextType {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
@@ -28,10 +45,14 @@ interface UserProfileContextType {
 const UserProfileContext = createContext<UserProfileContextType | undefined>(undefined);
 
 export function UserProfileProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfile] = useState<UserProfile>(defaultProfile);
+  const [profile, setProfile] = useState<UserProfile>(loadProfile);
 
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {
-    setProfile((prev) => ({ ...prev, ...updates }));
+    setProfile((prev) => {
+      const next = { ...prev, ...updates };
+      saveProfile(next);
+      return next;
+    });
   }, []);
 
   return (

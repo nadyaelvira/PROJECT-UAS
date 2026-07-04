@@ -18,9 +18,6 @@ export interface ElderlyProfile {
   medicalNotes: string;
 }
 
-// In a real app this would be fetched from an API / database.
-// For now we use a module-level mutable object so both pages
-// see the same live state within a session.
 const defaultProfile: ElderlyProfile = {
   photoUrl: "",
   name: "Suti",
@@ -30,7 +27,24 @@ const defaultProfile: ElderlyProfile = {
   medicalNotes: "Mild Dementia",
 };
 
-let profile: ElderlyProfile = { ...defaultProfile };
+const STORAGE_KEY = "safeelder_elderly_profile";
+
+function loadProfile(): ElderlyProfile {
+  if (typeof window === "undefined") return { ...defaultProfile };
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return { ...defaultProfile, ...JSON.parse(raw) };
+  } catch {}
+  return { ...defaultProfile };
+}
+
+function saveProfile(p: ElderlyProfile) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  } catch {}
+}
+
+let profile: ElderlyProfile = loadProfile();
 
 export function getElderlyProfile(): ElderlyProfile {
   return { ...profile };
@@ -38,5 +52,6 @@ export function getElderlyProfile(): ElderlyProfile {
 
 export function updateElderlyProfile(update: Partial<ElderlyProfile>): ElderlyProfile {
   profile = { ...profile, ...update };
+  saveProfile(profile);
   return { ...profile };
 }
