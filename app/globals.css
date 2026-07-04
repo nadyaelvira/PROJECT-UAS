@@ -281,3 +281,11 @@ input:focus, select:focus, textarea:focus {
 .leaflet-container .leaflet-tile-container {
   visibility: visible !important;
 }
+
+/* ============================================
+   ELDERLY TEXT SIZE SYSTEM
+   CSS variables are set on <html> via JS in
+   TextSizeContext.tsx — Tailwind utilities
+   (text-xs, text-sm, etc.) use these vars
+   automatically, so ALL text scales.
+   ============================================ */

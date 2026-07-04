@@ -1,24 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Navbar() {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
   const [status, setStatus] = useState<'safe' | 'warning'>('safe');
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
+      const locale = language === 'id' ? 'id-ID' : 'en-US';
       setCurrentTime(
-        now.toLocaleTimeString('en-US', {
+        now.toLocaleTimeString(locale, {
           hour: '2-digit',
           minute: '2-digit',
-          hour12: true,
+          hour12: language === 'en',
         })
       );
       setCurrentDate(
-        now.toLocaleDateString('en-US', {
+        now.toLocaleDateString(locale, {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
@@ -30,7 +33,7 @@ export default function Navbar() {
     updateDateTime();
     const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [language]);
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
@@ -44,7 +47,7 @@ export default function Navbar() {
           <div className={`w-2 h-2 rounded-full ${
             status === 'safe' ? 'bg-green-500' : 'bg-red-500'
           }`}></div>
-          <span>{status === 'safe' ? 'Safe Zone Active' : 'Outside Safe Zone'}</span>
+          <span>{status === 'safe' ? t('navbar.safeZone') : t('navbar.outsideZone')}</span>
         </div>
       </div>
 
