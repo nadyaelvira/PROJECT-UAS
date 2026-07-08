@@ -5,5 +5,7 @@ export default function ChildLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return <ChildLayoutWrapper>{children}</ChildLayoutWrapper>;
+
 }
