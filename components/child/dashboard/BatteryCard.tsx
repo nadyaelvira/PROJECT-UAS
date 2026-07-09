@@ -1,10 +1,13 @@
 "use client";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 interface BatteryCardProps {
   level: number;
 }
 
 export default function BatteryCard({ level }: BatteryCardProps) {
+  const { t } = useLanguage();
   const getColor = () => {
     if (level > 50) return { bg: "bg-green-50", icon: "text-green-600", fill: "bg-green-500" };
     if (level > 20) return { bg: "bg-yellow-50", icon: "text-yellow-600", fill: "bg-yellow-500" };
@@ -17,11 +20,10 @@ export default function BatteryCard({ level }: BatteryCardProps) {
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500">Device Battery</p>
+          <p className="text-sm font-medium text-gray-500">{t("child.dashboard.battery.label")}</p>
           <div className="mt-2 flex items-end gap-2">
             <p className="text-3xl font-bold text-gray-900">{level}%</p>
           </div>
-          {/* Battery bar */}
           <div className="mt-2 h-2 w-24 bg-gray-100 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${colors.fill} transition-all`}

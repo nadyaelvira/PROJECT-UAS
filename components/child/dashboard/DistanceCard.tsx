@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 interface DistanceCardProps {
   distance: number;
   isOutsideZone: boolean;
@@ -9,17 +11,19 @@ export default function DistanceCard({
   distance,
   isOutsideZone,
 }: DistanceCardProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-500">
-            Distance from Safe Zone
+            {t("child.dashboard.distance.label")}
           </p>
           <div className="mt-2">
             <p className="text-3xl font-bold text-gray-900">
               {distance}{" "}
-              <span className="text-base font-normal text-gray-500">meters</span>
+              <span className="text-base font-normal text-gray-500">{t("child.dashboard.distance.meters")}</span>
             </p>
           </div>
         </div>

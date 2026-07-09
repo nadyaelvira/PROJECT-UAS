@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useSharedStore, calculateDistance } from "@/components/shared/sharedStore";
+import { useLanguage } from "@/context/LanguageContext";
+import { usePollElderlyLocation } from "@/hooks/usePollElderlyLocation";
+import { reverseGeocode } from "@/lib/reverseGeocode";
 import StatusCard from "@/components/child/dashboard/StatusCard";
 import DistanceCard from "@/components/child/dashboard/DistanceCard";
-import SafeZoneCard from "@/components/child/dashboard/SafeZoneCard";
-import RadiusCard from "@/components/child/dashboard/RadiusCard";
+import SafeZoneSettingsCard from "@/components/child/dashboard/SafeZoneSettingsCard";
 import LocationCard from "@/components/child/dashboard/LocationCard";
 import BatteryCard from "@/components/child/dashboard/BatteryCard";
 
@@ -18,10 +20,14 @@ const ElderlyMap = dynamic(
 
 export default function DashboardClient() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [realAddress, setRealAddress] = useState("");
+  const [pickingMode, setPickingMode] = useState(false);
   const {
     elderlyLocation,
     homeLocation,
+    homeName,
     safeZoneDistance,
     isOutsideZone,
     emergencyMode,
@@ -35,6 +41,33 @@ export default function DashboardClient() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  usePollElderlyLocation(mounted);
+
+  // Listen for picking mode from SafeZoneCard
+  useEffect(() => {
+    function handlePickStart() { setPickingMode(true); }
+    function handlePickEnd() { setPickingMode(false); }
+    window.addEventListener("safezone-pick-start", handlePickStart);
+    window.addEventListener("safezone-pick-end", handlePickEnd);
+    return () => {
+      window.removeEventListener("safezone-pick-start", handlePickStart);
+      window.removeEventListener("safezone-pick-end", handlePickEnd);
+    };
+  }, []);
+
+  const handleMapClick = pickingMode
+    ? (lat: number, lng: number) => {
+        window.dispatchEvent(new CustomEvent("safezone-pick", { detail: { lat, lng } }));
+        setPickingMode(false);
+      }
+    : undefined;
+
+  // Reverse geocode elderly location
+  useEffect(() => {
+    if (!mounted) return;
+    reverseGeocode(elderlyLocation.lat, elderlyLocation.lng).then(setRealAddress);
+  }, [mounted, elderlyLocation.lat, elderlyLocation.lng]);
 
   const distance = mounted
     ? calculateDistance(
@@ -58,6 +91,7 @@ export default function DashboardClient() {
             homeLng={homeLocation.lng}
             safeRadius={safeZoneDistance}
             isOutsideZone={isOutsideZone}
+            onMapClick={handleMapClick}
           />
         </div>
       </div>
@@ -66,20 +100,16 @@ export default function DashboardClient() {
       <div className="w-[380px] flex-shrink-0 space-y-4 overflow-y-auto pr-1">
         <StatusCard status={isOutsideZone ? "out_of_zone" : "safe"} />
         <DistanceCard distance={distanceMeters} isOutsideZone={isOutsideZone} />
-        <SafeZoneCard
-          zoneName="Home"
-          address={homeLocation.address}
-        />
-        <RadiusCard radius={safeZoneDistance} />
+        <SafeZoneSettingsCard />
         <LocationCard
-          address={elderlyLocation.address}
-          lastUpdated="Just now"
+          address={mounted ? (realAddress || elderlyLocation.address) : t("child.dashboard.loading")}
+          lastUpdated={t("child.dashboard.justNow")}
         />
         <BatteryCard level={battery} />
 
         {/* Action Buttons */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <p className="text-sm font-medium text-gray-500 mb-3">Actions</p>
+          <p className="text-sm font-medium text-gray-500 mb-3">{t("child.dashboard.actions")}</p>
           <div className="space-y-3">
             {/* Emergency Mode */}
             <button
@@ -99,7 +129,7 @@ export default function DashboardClient() {
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
               </svg>
-              {emergencyMode ? "Deactivate Emergency" : "Emergency Mode"}
+              {emergencyMode ? t("child.dashboard.deactivateEmergency") : t("child.dashboard.emergencyMode")}
             </button>
 
             {/* Direction */}
@@ -110,7 +140,7 @@ export default function DashboardClient() {
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
               </svg>
-              Direction to Elderly
+              {t("child.dashboard.directionToElderly")}
             </button>
           </div>
         </div>
@@ -118,7 +148,7 @@ export default function DashboardClient() {
         {/* Recent Notification */}
         {mounted && getLatestNotification() && (
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-sm font-medium text-gray-500 mb-3">Latest Notification</p>
+            <p className="text-sm font-medium text-gray-500 mb-3">{t("child.dashboard.latestNotif")}</p>
             <div className="flex items-start gap-3">
               <div className={`h-2 w-2 rounded-full mt-1.5 flex-shrink-0 ${
                 getLatestNotification()?.type === "emergency" ? "bg-red-500" :

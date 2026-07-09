@@ -1,17 +1,20 @@
 "use client";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 interface StatusCardProps {
   status: "safe" | "out_of_zone";
 }
 
 export default function StatusCard({ status }: StatusCardProps) {
+  const { t } = useLanguage();
   const isSafe = status === "safe";
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500">Current Status</p>
+          <p className="text-sm font-medium text-gray-500">{t("child.dashboard.status.currentStatus")}</p>
           <div className="flex items-center gap-2 mt-2">
             <span
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${
@@ -25,7 +28,7 @@ export default function StatusCard({ status }: StatusCardProps) {
                   isSafe ? "bg-green-500" : "bg-red-500"
                 }`}
               />
-              {isSafe ? "SAFE" : "OUT OF SAFE ZONE"}
+              {isSafe ? t("child.dashboard.status.safe") : t("child.dashboard.status.outOfZone")}
             </span>
           </div>
         </div>
