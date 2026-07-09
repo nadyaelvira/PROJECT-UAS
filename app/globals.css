@@ -2,6 +2,10 @@
 
 /* SafeElder Design System */
 :root {
+
+  --background: #f8fafc;
+  --foreground: #1e293b;
+
   /* Primary Colors */
   --color-primary: #2563EB;
   --color-primary-light: #3B82F6;
@@ -88,6 +92,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -96,6 +101,7 @@
 }
 
 /* Base Styles */
+
 body {
   background: var(--color-background);
   color: var(--color-text-primary);
@@ -104,6 +110,59 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+
+/* Leaflet map fixes for Next.js */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #e5e3df;
+  z-index: 0;
+}
+
+/* Reset Tailwind preflight interference on Leaflet tiles */
+.leaflet-pane > * {
+  border-width: 0;
+  border-style: solid;
+}
+
+.leaflet-tile-pane {
+  z-index: 1 !important;
+}
+
+.leaflet-overlay-pane {
+  z-index: 2 !important;
+}
+
+.leaflet-popup-pane {
+  z-index: 3 !important;
+}
+
+.leaflet-tile {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-tile-container {
+  border: none !important;
+  outline: none !important;
+}
+
+.leaflet-tile-loaded {
+  border: none !important;
+  outline: none !important;
+}
+
+.leaflet-tile-pane img {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.custom-marker {
+   background: transparent !important;
+    border: none !important;
+}
 /* Focus States for Accessibility */
 *:focus-visible {
   outline: 2px solid var(--color-primary);
@@ -146,25 +205,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px var(--color-primary-100);
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
 
-::-webkit-scrollbar-track {
-  background: var(--color-surface);
-  border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-text-muted);
-  border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
-}
 
 /* Animation Utilities */
 @keyframes pulse {
@@ -215,44 +256,12 @@ input:focus, select:focus, textarea:focus {
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* Leaflet Map Fixes */
-.leaflet-container {
-  width: 100% !important;
-  height: 100% !important;
-  min-height: 384px;
-  z-index: 1;
-  background: #f8fafc;
-}
-
-/* Fix tile rendering */
-.leaflet-tile {
-  will-change: transform;
-}
-
-.leaflet-pane {
-  z-index: 1;
-}
-
-.leaflet-tile-pane {
-  z-index: 1;
-}
-
-.leaflet-overlay-pane {
-  z-index: 2;
-}
-
-.leaflet-marker-pane {
-  z-index: 3;
-}
-
-.leaflet-popup-pane {
-  z-index: 4;
-}
 
 /* Fix marker icons */
 .home-marker-icon,
 .current-position-icon,
 .out-of-zone-icon {
+
   background: transparent !important;
   border: none !important;
 }
@@ -260,12 +269,32 @@ input:focus, select:focus, textarea:focus {
 /* Fix Leaflet popup styles */
 .leaflet-popup-content-wrapper {
   border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+
 }
 
 .leaflet-popup-content {
   margin: 12px 16px !important;
   font-family: inherit !important;
+}
+
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .leaflet-popup-tip {
@@ -282,10 +311,4 @@ input:focus, select:focus, textarea:focus {
   visibility: visible !important;
 }
 
-/* ============================================
-   ELDERLY TEXT SIZE SYSTEM
-   CSS variables are set on <html> via JS in
-   TextSizeContext.tsx — Tailwind utilities
-   (text-xs, text-sm, etc.) use these vars
-   automatically, so ALL text scales.
-   ============================================ */
+

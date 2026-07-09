@@ -95,7 +95,7 @@ export default function ChildHomePage() {
               </div>
               <div className="bg-gray-50 rounded-lg p-3">
                 <p className="text-xs text-gray-500 mb-1">Zone Threshold</p>
-                <p className="text-sm font-semibold text-gray-900">{SAFE_ZONE_RADIUS}m radius</p>
+                <p className="text-sm font-semibold text-gray-900">{SAFE_ZONE_RADIUS}m</p>
               </div>
             </div>
           </div>
@@ -130,11 +130,11 @@ export default function ChildHomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
               </div>
-              <h3 className="text-sm font-semibold text-gray-900">Safe Radius</h3>
+              <h3 className="text-sm font-semibold text-gray-900">Safe Zone</h3>
             </div>
             <div className="space-y-3">
               <div className="bg-blue-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500 mb-1">Radius</p>
+                <p className="text-xs text-gray-500 mb-1">Safe Zone</p>
                 <p className="text-lg font-bold text-blue-600">{SAFE_ZONE_RADIUS}m</p>
               </div>
               <div className="bg-gray-50 rounded-lg p-3">
