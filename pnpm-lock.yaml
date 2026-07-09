@@ -33,8 +33,13 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       react-hook-form:
+<<<<<<< HEAD
+        specifier: ^7.79.0
+        version: 7.79.0(react@19.2.4)
+=======
         specifier: ^7.80.0
         version: 7.80.0(react@19.2.4)
+>>>>>>> origin/coba-push1
       react-leaflet:
         specifier: ^5.0.0
         version: 5.0.0(leaflet@1.9.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)

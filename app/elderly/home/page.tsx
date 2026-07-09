@@ -1,140 +1,234 @@
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
-import { useLanguage } from '@/context/LanguageContext';
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import { useLanguage } from "@/context/LanguageContext";
+import { useSharedStore, calculateDistance } from "@/components/shared/sharedStore";
 
-const LiveLocationMap = dynamic(() => import('@/components/LiveLocationMap'), {
+const ElderlyHomeMap = dynamic(() => import("@/components/elderly/ElderlyHomeMap"), {
   ssr: false,
   loading: () => (
-    <div className="h-96 bg-gray-100 rounded-xl flex items-center justify-center">
+    <div className="h-full w-full rounded-2xl bg-gray-100 flex items-center justify-center">
       <div className="text-center">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-        <p className="text-sm text-gray-500">Loading map...</p>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3" />
+        <p className="text-gray-500 text-sm">Loading map...</p>
       </div>
     </div>
   ),
 });
 
-const SAFE_ZONE_CENTER: [number, number] = [-7.9666, 112.6326];
-const CURRENT_POSITION: [number, number] = [-7.9664, 112.6328];
-const SAFE_ZONE_RADIUS = 5;
-
 export default function ElderlyHomePage() {
-  const distanceFromZone = 3;
   const { t } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+  const {
+    elderlyLocation,
+    homeLocation,
+    safeZoneDistance,
+    isOutsideZone,
+    emergencyMode,
+    sosActive,
+    triggerSOS,
+    battery,
+  } = useSharedStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const distance = mounted
+    ? calculateDistance(
+        elderlyLocation.lat,
+        elderlyLocation.lng,
+        homeLocation.lat,
+        homeLocation.lng
+      )
+    : 0;
+  const distanceMeters = Math.round(distance);
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="shrink-0 mb-4">
-        <h1 className="text-2xl font-bold text-gray-900">{t('home.title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">{t('home.subtitle')}</p>
+    <div className="flex gap-6 h-full">
+      {/* Left: Map */}
+      <div className="flex-1 min-w-0">
+        <div className="h-[calc(100vh-8rem)]">
+          <ElderlyHomeMap
+            elderlyLat={elderlyLocation.lat}
+            elderlyLng={elderlyLocation.lng}
+            homeLat={homeLocation.lat}
+            homeLng={homeLocation.lng}
+            safeZoneDistance={safeZoneDistance}
+            isOutsideZone={isOutsideZone}
+          />
+        </div>
       </div>
 
-      <div className="flex-1 flex gap-6 min-h-0">
-        {/* Left Column - Map */}
-        <div className="w-[70%] bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-gray-100 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <h2 className="text-sm font-semibold text-gray-900">{t('home.liveLocation')}</h2>
+      {/* Right: Info Cards */}
+      <div className="w-[380px] flex-shrink-0 space-y-4 overflow-y-auto pr-1">
+        {/* Status Card */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">{t("home.currentLocation")}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${
+                    isOutsideZone
+                      ? "bg-red-50 text-red-700"
+                      : "bg-green-50 text-green-700"
+                  }`}
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      isOutsideZone ? "bg-red-500" : "bg-green-500"
+                    }`}
+                  />
+                  {isOutsideZone ? "OUT OF SAFE ZONE" : "SAFE"}
+                </span>
+              </div>
             </div>
-            <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-medium">{t('home.safeZoneActive')}</span>
-          </div>
-          <div className="flex-1">
-            <LiveLocationMap center={SAFE_ZONE_CENTER} currentPosition={CURRENT_POSITION} safeZoneRadius={SAFE_ZONE_RADIUS} isInsideZone={true} address="Jl. Sukarno No.70, Malang" />
+            <div
+              className={`h-12 w-12 rounded-xl flex items-center justify-center ${
+                isOutsideZone ? "bg-red-50" : "bg-green-50"
+              }`}
+            >
+              <svg
+                className={`h-6 w-6 ${isOutsideZone ? "text-red-600" : "text-green-600"}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                {isOutsideZone ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                )}
+              </svg>
+            </div>
           </div>
         </div>
 
-        {/* Right Column - Cards */}
-        <div className="w-[30%] flex flex-col gap-4 overflow-y-auto">
-          {/* Card 1: Current Location */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        {/* Distance Card */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">{t("home.distance")}</p>
+              <div className="mt-2">
+                <p className="text-3xl font-bold text-gray-900">
+                  {distanceMeters}{" "}
+                  <span className="text-base font-normal text-gray-500">{t("home.meters")}</span>
+                </p>
               </div>
-              <h3 className="text-sm font-semibold text-gray-900">{t('home.currentLocation')}</h3>
             </div>
-            <div className="space-y-3">
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500 mb-1">{t('home.address')}</p>
-                <p className="text-sm font-semibold text-gray-900">Jl. Sukarno No.70</p>
-              </div>
-              <div className="bg-green-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500 mb-1">{t('home.distance')}</p>
-                <p className="text-lg font-bold text-green-600">{distanceFromZone} {t('home.meters')}</p>
-              </div>
+            <div
+              className={`h-12 w-12 rounded-xl flex items-center justify-center ${
+                isOutsideZone ? "bg-red-50" : "bg-blue-50"
+              }`}
+            >
+              <svg
+                className={`h-6 w-6 ${isOutsideZone ? "text-red-600" : "text-blue-600"}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
             </div>
           </div>
+        </div>
 
-          {/* Card 2: Safe Zone */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-              </div>
-              <h3 className="text-sm font-semibold text-gray-900">{t('home.safeZone')}</h3>
+        {/* Safe Zone Card */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-500">{t("home.safeZone")}</p>
+              <p className="text-lg font-semibold text-gray-900 mt-1">{t("home.home")}</p>
+              <p className="text-sm text-gray-500 mt-0.5">{homeLocation.address}</p>
             </div>
-            <div className="space-y-3">
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500 mb-1">{t('home.zoneName')}</p>
-                <p className="text-sm font-semibold text-gray-900">{t('home.home')}</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500 mb-1">{t('home.address')}</p>
-                <p className="text-xs font-medium text-gray-900">Jl. Sukarno No.70, Malang</p>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1 bg-blue-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500 mb-1">{t('home.radius')}</p>
-                  <p className="text-sm font-bold text-blue-600">{SAFE_ZONE_RADIUS}m</p>
-                </div>
-                <div className="flex-1 bg-green-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500 mb-1">{t('home.status')}</p>
-                  <p className="text-sm font-bold text-green-600">{t('home.safe')}</p>
-                </div>
-              </div>
+            <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-blue-50">
+              <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+              </svg>
             </div>
           </div>
+          <div className="mt-3 flex gap-2">
+            <div className="flex-1 bg-blue-50 rounded-xl p-3">
+              <p className="text-xs text-gray-500 mb-1">{t("home.radius")}</p>
+              <p className="text-sm font-bold text-blue-600">{safeZoneDistance}m</p>
+            </div>
+            <div className="flex-1 bg-green-50 rounded-xl p-3">
+              <p className="text-xs text-gray-500 mb-1">{t("home.status")}</p>
+              <p className="text-sm font-bold text-green-600">{t("home.safe")}</p>
+            </div>
+          </div>
+        </div>
 
-          {/* Card 3: Device Battery */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              </div>
-              <h3 className="text-sm font-semibold text-gray-900">{t('home.deviceBattery')}</h3>
+        {/* Location Card */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-500">{t("home.currentLocation")}</p>
+              <p className="text-lg font-semibold text-gray-900 mt-1">{elderlyLocation.address}</p>
             </div>
-            <div className="text-center py-4">
-              <div className="relative inline-block mb-3">
-                <div className="w-20 h-10 bg-white border-2 border-gray-200 rounded-lg relative overflow-hidden">
-                  <div className="absolute left-1 top-1 bottom-1 w-[70%] bg-green-500 rounded"></div>
-                </div>
-                <div className="absolute right-[-6px] top-1/2 transform -translate-y-1/2 w-1.5 h-4 bg-gray-300 rounded-r"></div>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">78%</p>
-              <p className="text-xs text-gray-500 mt-1">{t('home.goodCondition')}</p>
+            <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-gray-50">
+              <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
             </div>
           </div>
+        </div>
 
-          {/* Card 4: Need Help */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        {/* Battery Card */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">{t("home.deviceBattery")}</p>
+              <div className="mt-2 flex items-end gap-2">
+                <p className="text-3xl font-bold text-gray-900">78%</p>
               </div>
-              <h3 className="text-sm font-semibold text-gray-900">{t('home.needHelp')}</h3>
+              <div className="mt-2 h-2 w-24 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: "78%" }} />
+              </div>
             </div>
-            <div className="flex flex-col items-center justify-center py-4">
-              <p className="text-xs text-gray-500 mb-4 text-center">{t('home.tapForHelp')}</p>
-              <button className="w-full py-3 px-4 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                <div className="flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                  <span>{t('home.needHelpBtn')}</span>
-                </div>
-              </button>
+            <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-green-50">
+              <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 10.5h.375c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125H21M3.75 18h15A2.25 2.25 0 0021 15.75v-6a2.25 2.25 0 00-2.25-2.25h-15A2.25 2.25 0 001.5 9.75v6A2.25 2.25 0 003.75 18z" />
+              </svg>
             </div>
           </div>
+        </div>
+
+        {/* SOS Button */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-red-50">
+              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">{t("home.needHelp")}</p>
+              <p className="text-xs text-gray-500">{t("home.tapForHelp")}</p>
+            </div>
+          </div>
+          <button
+            onClick={triggerSOS}
+            disabled={sosActive}
+            className={`w-full py-3 px-4 text-sm font-semibold rounded-xl transition-colors ${
+              sosActive
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700 text-white"
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <span>{sosActive ? "SOS ACTIVE" : t("home.needHelpBtn")}</span>
+            </div>
+          </button>
         </div>
       </div>
     </div>
