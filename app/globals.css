@@ -96,8 +96,8 @@
 }
 
 /* Base Styles */
-body {
-  background: var(--color-background);
+html, body {
+  background: transparent;
   color: var(--color-text-primary);
   font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;

@@ -26,7 +26,13 @@ const translations = {
     'hero.title': 'Lindungi Orang Tersayang dengan Pemantauan Lokasi Secara Real-Time',
     'hero.description': 'SAPA membantu keluarga memantau lokasi lansia secara langsung, mengatur zona aman, dan menerima notifikasi ketika lansia keluar dari area yang telah ditentukan.',
     'hero.cta': 'Daftar Sekarang',
+    'hero.ctaLearnMore': 'Pelajari Lebih Lanjut',
     'hero.dashboard': 'Dashboard SAPA',
+
+    // Apa itu SAPA
+    'about.title': 'Apa itu SAPA?',
+    'about.description': 'SAPA (Solusi Aman untuk Pemantauan Lansia) adalah aplikasi berbasis mobile dan web yang dirancang khusus untuk membantu keluarga memantau lokasi lansia secara real-time.',
+    'about.detail': 'Dengan teknologi GPS dan geofencing, SAPA memungkinkan Anda mengetahui keberadaan orang tua atau kakek nenek Anda kapan saja dan di mana saja. Ketika lansia keluar dari zona aman yang telah ditentukan, sistem akan secara otomatis mengirimkan notifikasi kepada anggota keluarga.',
 
     // Why SAPA
     'why.title': 'Mengapa Menggunakan SAPA?',
@@ -110,7 +116,13 @@ const translations = {
     'hero.title': 'Protect Your Loved Ones with Real-Time Location Monitoring',
     'hero.description': 'SAPA helps families monitor elderly locations directly, set up safe zones, and receive notifications when they leave designated areas.',
     'hero.cta': 'Register Now',
+    'hero.ctaLearnMore': 'Learn More',
     'hero.dashboard': 'SAPA Dashboard',
+
+    // Apa itu SAPA
+    'about.title': 'What is SAPA?',
+    'about.description': 'SAPA (Safe Solution for Elderly Monitoring) is a mobile and web application designed specifically to help families monitor elderly locations in real-time.',
+    'about.detail': 'Using GPS and geofencing technology, SAPA allows you to know the whereabouts of your parents or grandparents anytime and anywhere. When elderly leave a predetermined safe zone, the system automatically sends notifications to family members.',
 
     // Why SAPA
     'why.title': 'Why Use SAPA?',
