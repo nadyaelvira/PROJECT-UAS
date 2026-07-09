@@ -1,0 +1,22 @@
+[33m61c4aa6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: pull origin main: Fast-forward
+[33mb1984ce[m HEAD@{1}: checkout: moving from main to main
+[33mb1984ce[m HEAD@{2}: checkout: moving from tes2 to main
+[33m6aae2c6[m[33m ([m[1;31morigin/tes2[m[33m)[m HEAD@{3}: reset: moving to HEAD
+[33m6aae2c6[m[33m ([m[1;31morigin/tes2[m[33m)[m HEAD@{4}: pull origin coba-push1: Merge made by the 'ort' strategy.
+[33mb1984ce[m HEAD@{5}: checkout: moving from main to tes2
+[33mb1984ce[m HEAD@{6}: checkout: moving from test to main
+[33m187bea2[m[33m ([m[1;32mtest[m[33m)[m HEAD@{7}: commit: selesai pull 1
+[33mf3f0347[m[33m ([m[1;31morigin/coba-push[m[33m)[m HEAD@{8}: reset: moving to HEAD
+[33mf3f0347[m[33m ([m[1;31morigin/coba-push[m[33m)[m HEAD@{9}: pull origin coba-push: Fast-forward
+[33mb1984ce[m HEAD@{10}: checkout: moving from main to test
+[33mb1984ce[m HEAD@{11}: checkout: moving from LoginPage to main
+[33mb1984ce[m HEAD@{12}: checkout: moving from main to LoginPage
+[33mb1984ce[m HEAD@{13}: pull origin main: Fast-forward
+[33md36b65d[m HEAD@{14}: checkout: moving from main to main
+[33md36b65d[m HEAD@{15}: pull origin main: Fast-forward
+[33m48b6bdb[m HEAD@{16}: checkout: moving from tes to main
+[33mb0df6fb[m[33m ([m[1;31morigin/tes[m[33m)[m HEAD@{17}: commit: tes-updateBG
+[33m48b6bdb[m HEAD@{18}: checkout: moving from main to tes
+[33m48b6bdb[m HEAD@{19}: checkout: moving from main to main
+[33m48b6bdb[m HEAD@{20}: Branch: renamed refs/heads/master to refs/heads/main
+[33m48b6bdb[m HEAD@{22}: commit (initial): Initial commit from Create Next App
