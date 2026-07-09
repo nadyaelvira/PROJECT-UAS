@@ -3,20 +3,48 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useSapaLanguage } from '@/context/SapaLanguageContext';
+
+const MOCK_EMAIL = 'admin@sapa.com';
+const MOCK_PASSWORD = 'admin1234';
 
 export default function LoginPage() {
   const { t } = useSapaLanguage();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Frontend-only — no backend
+    setError(null);
+
+    if (!email.trim() || !password) {
+      setError(t('auth.login.error.empty'));
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError(t('auth.login.error.emailFormat'));
+      return;
+    }
+
+    if (password.length < 8) {
+      setError(t('auth.login.error.passwordMin'));
+      return;
+    }
+
+    if (email !== MOCK_EMAIL || password !== MOCK_PASSWORD) {
+      setError(t('auth.login.error.invalid'));
+      return;
+    }
+
+    router.push('/role-select');
   };
 
   const handleForgotPassword = (e: React.FormEvent) => {
@@ -39,6 +67,15 @@ export default function LoginPage() {
               {t('auth.login.subtitle')}
             </p>
 
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2">
+                <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-sm text-red-600">{error}</span>
+              </div>
+            )}
+
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -47,7 +84,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setError(null); }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] focus:border-transparent"
                   placeholder="email@example.com"
                 />
@@ -61,7 +98,7 @@ export default function LoginPage() {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); setError(null); }}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] focus:border-transparent pr-12"
                     placeholder="••••••••"
                   />

@@ -97,6 +97,12 @@ const translations = {
     'auth.login.noAccount': 'Belum punya akun?',
     'auth.login.register': 'Daftar',
 
+    // Auth - Login Errors
+    'auth.login.error.empty': 'Email dan password harus diisi',
+    'auth.login.error.invalid': 'Email atau password salah',
+    'auth.login.error.emailFormat': 'Format email tidak valid',
+    'auth.login.error.passwordMin': 'Password minimal 8 karakter',
+
     // Auth - Register
     'auth.register.title': 'Buat Akun Baru',
     'auth.register.name': 'Nama Lengkap',
@@ -107,6 +113,22 @@ const translations = {
     'auth.register.hasAccount': 'Sudah punya akun?',
     'auth.register.login': 'Masuk',
 
+    // Auth - Register Errors
+    'auth.register.error.empty': 'Semua field harus diisi',
+    'auth.register.error.emailFormat': 'Format email tidak valid',
+    'auth.register.error.emailExists': 'Email sudah terdaftar',
+    'auth.register.error.passwordMin': 'Password minimal 8 karakter',
+    'auth.register.error.passwordMismatch': 'Konfirmasi password tidak cocok',
+
+    // Role Select
+    'role.title': 'Pilih Peran Anda',
+    'role.subtitle': 'Masuk sebagai anak atau lansia',
+    'role.anak': 'Saya Anak',
+    'role.anak.desc': 'Pantau lokasi dan keamanan lansia',
+    'role.lansia': 'Saya Lansia',
+    'role.lansia.desc': 'Lihat dashboard dan pengaturan saya',
+    'role.backToLogin': 'Kembali ke login',
+
     // Auth - Forgot Password
     'auth.forgot.title': 'Reset Password',
     'auth.forgot.subtitle': 'Masukkan email Anda untuk menerima link reset password',
@@ -116,17 +138,9 @@ const translations = {
 
     // Footer
     'footer.description': 'Solusi Aman untuk Pemantauan Lansia. Membantu keluarga menjaga keamanan lansia dengan teknologi GPS dan geofencing.',
-    'footer.product': 'Produk',
-    'footer.company': 'Perusahaan',
-    'footer.about': 'Tentang Kami',
-    'footer.careers': 'Karir',
-    'footer.blog': 'Blog',
+    'footer.product': 'Jelajahi',
     'footer.contact': 'Kontak',
-    'footer.support': 'Dukungan',
-    'footer.helpCenter': 'Pusat Bantuan',
-    'footer.privacy': 'Kebijakan Privasi',
-    'footer.terms': 'Syarat & Ketentuan',
-    'footer.copyright': '© 2024 SAPA. Hak cipta dilindungi.',
+    'footer.copyright': '© 2026 SAPA. Hak cipta dilindungi.',
   },
   en: {
     // Navbar
@@ -214,6 +228,12 @@ const translations = {
     'auth.login.noAccount': "Don't have an account?",
     'auth.login.register': 'Register',
 
+    // Auth - Login Errors
+    'auth.login.error.empty': 'Email and password are required',
+    'auth.login.error.invalid': 'Invalid email or password',
+    'auth.login.error.emailFormat': 'Invalid email format',
+    'auth.login.error.passwordMin': 'Password must be at least 8 characters',
+
     // Auth - Register
     'auth.register.title': 'Create New Account',
     'auth.register.name': 'Full Name',
@@ -224,6 +244,22 @@ const translations = {
     'auth.register.hasAccount': 'Already have an account?',
     'auth.register.login': 'Sign In',
 
+    // Auth - Register Errors
+    'auth.register.error.empty': 'All fields are required',
+    'auth.register.error.emailFormat': 'Invalid email format',
+    'auth.register.error.emailExists': 'Email is already registered',
+    'auth.register.error.passwordMin': 'Password must be at least 8 characters',
+    'auth.register.error.passwordMismatch': 'Passwords do not match',
+
+    // Role Select
+    'role.title': 'Select Your Role',
+    'role.subtitle': 'Sign in as child or elderly',
+    'role.anak': "I'm a Child",
+    'role.anak.desc': 'Monitor elderly location and safety',
+    'role.lansia': "I'm Elderly",
+    'role.lansia.desc': 'View my dashboard and settings',
+    'role.backToLogin': 'Back to login',
+
     // Auth - Forgot Password
     'auth.forgot.title': 'Reset Password',
     'auth.forgot.subtitle': 'Enter your email to receive a password reset link',
@@ -233,17 +269,9 @@ const translations = {
 
     // Footer
     'footer.description': 'Safe Solution for Elderly Monitoring. Helping families keep elderly safe with GPS and geofencing technology.',
-    'footer.product': 'Product',
-    'footer.company': 'Company',
-    'footer.about': 'About Us',
-    'footer.careers': 'Careers',
-    'footer.blog': 'Blog',
+    'footer.product': 'Explore',
     'footer.contact': 'Contact',
-    'footer.support': 'Support',
-    'footer.helpCenter': 'Help Center',
-    'footer.privacy': 'Privacy Policy',
-    'footer.terms': 'Terms & Conditions',
-    'footer.copyright': '© 2024 SAPA. All rights reserved.',
+    'footer.copyright': '© 2026 SAPA. All rights reserved.',
   },
 };
 
