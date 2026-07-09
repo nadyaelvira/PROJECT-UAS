@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import Link from "next/link";
 import { useTextSize } from "@/context/TextSizeContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSharedStore } from "@/components/shared/sharedStore";
@@ -297,6 +298,27 @@ export default function ElderlySettingsPage() {
             <p className="text-xs text-gray-500 mt-1">{t("settings.safeZoneDesc")}</p>
           </div>
         </div>
+      </div>
+
+      {/* About Application */}
+      <div className="mt-4">
+        <Link
+          href="/elderly/about"
+          className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-3 hover:bg-gray-50 transition-colors"
+        >
+          <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-gray-900">About Application</h3>
+            <p className="text-xs text-gray-500 mt-0.5">Information about SAPA</p>
+          </div>
+          <svg className="h-5 w-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </Link>
       </div>
     </div>
   );

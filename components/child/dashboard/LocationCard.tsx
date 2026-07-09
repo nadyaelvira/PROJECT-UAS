@@ -1,19 +1,23 @@
 "use client";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 interface LocationCardProps {
   address: string;
   lastUpdated: string;
 }
 
 export default function LocationCard({ address, lastUpdated }: LocationCardProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-500">Current Location</p>
+          <p className="text-sm font-medium text-gray-500">{t("child.dashboard.location.label")}</p>
           <p className="text-lg font-semibold text-gray-900 mt-1">{address}</p>
           <p className="text-xs text-gray-400 mt-1">
-            Updated: {lastUpdated}
+            {t("child.dashboard.location.updated")}{lastUpdated}
           </p>
         </div>
         <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-gray-50">
