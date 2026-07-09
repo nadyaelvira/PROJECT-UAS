@@ -6,7 +6,7 @@ export const mockElderlyData = {
     name: "Home",
     address: "Jl. Sukarno No.70, Kediri",
   },
-  safeRadius: 5,
+  safeZoneDistance: 5,
   location: {
     address: "Jl. Sukarno No.70",
     lastUpdated: "10:32 AM",

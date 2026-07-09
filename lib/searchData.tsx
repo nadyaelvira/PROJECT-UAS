@@ -135,7 +135,7 @@ export function searchAll(query: string): SearchResult[] {
     { label: dashboardData.safeZone.name, description: "Safe zone name", field: "zone-name" },
     { label: dashboardData.safeZone.address, description: "Safe zone address", field: "zone-address" },
     { label: dashboardData.location.address, description: "Current location", field: "location" },
-    { label: `${dashboardData.safeRadius}m radius`, description: "Safe radius", field: "radius" },
+    { label: `${dashboardData.safeZoneDistance}m safe zone`, description: "Safe Zone", field: "radius" },
     { label: `${dashboardData.battery}% Battery`, description: "Battery level", field: "battery" },
     { label: dashboardData.status === "safe" ? "Status: Safe" : "Status: Outside Zone", description: "Current status", field: "status" },
   ];
@@ -172,7 +172,7 @@ export function searchAll(query: string): SearchResult[] {
 
   // 5. Search settings
   const settingsItems = [
-    { label: "Safe Radius", description: "Configure monitoring radius", keywords: ["radius", "safe", "zone", "meters"] },
+    { label: "Safe Zone", description: "Configure monitoring safe zone", keywords: ["safe", "zone", "radius", "meters"] },
     { label: "Enable Notifications", description: "Push notification settings", keywords: ["notification", "alert", "push"] },
     { label: "Alarm Sound", description: "Emergency alert sound", keywords: ["alarm", "sound", "emergency", "audio"] },
     { label: "Change Password", description: "Account security", keywords: ["password", "security", "account"] },

@@ -9,7 +9,7 @@ export default function RadiusCard({ radius }: RadiusCardProps) {
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-500">Safe Radius</p>
+          <p className="text-sm font-medium text-gray-500">Safe Zone</p>
           <div className="mt-1">
             <p className="text-3xl font-bold text-gray-900">
               {radius}{" "}
@@ -34,7 +34,7 @@ export default function RadiusCard({ radius }: RadiusCardProps) {
         </div>
       </div>
       <button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 px-4 rounded-xl transition-colors">
-        Change Radius
+        Change Safe Zone
       </button>
     </div>
   );

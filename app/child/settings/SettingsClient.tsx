@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useSharedStore } from "@/components/shared/sharedStore";
 
 export default function SettingsClient() {
-  const [radius, setRadius] = useState(5);
+  const { safeZoneDistance, setSafeZoneDistance } = useSharedStore();
   const [notificationsOn, setNotificationsOn] = useState(true);
   const [alarmOn, setAlarmOn] = useState(true);
 
@@ -17,7 +18,7 @@ export default function SettingsClient() {
       </div>
 
       <div className="space-y-6">
-        {/* Default Safe Radius */}
+        {/* Default Safe Zone */}
         <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-100">
             <div className="flex items-center gap-3">
@@ -27,20 +28,20 @@ export default function SettingsClient() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">Default Safe Radius</h2>
+                <h2 className="text-sm font-semibold text-gray-900">Default Safe Zone</h2>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Automatically updates the elderly user&apos;s monitoring radius.
+                  Automatically updates the elderly user&apos;s safe zone.
                 </p>
               </div>
             </div>
           </div>
           <div className="px-6 py-5">
             <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
-              Radius
+              Safe Zone
             </label>
             <select
-              value={radius}
-              onChange={(e) => setRadius(Number(e.target.value))}
+              value={safeZoneDistance}
+              onChange={(e) => setSafeZoneDistance(Number(e.target.value))}
               className="w-full bg-gray-50 border border-gray-200 text-sm text-gray-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
             >
               {[5, 10, 15, 20, 25].map((r) => (

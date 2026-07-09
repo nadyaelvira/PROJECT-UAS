@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  mockNotifications,
-  type NotificationType,
-} from "@/components/child/notifications/mockNotifications";
+import { useSharedStore, formatNotificationTime, type NotificationType } from "@/components/shared/sharedStore";
 
 const typeConfig: Record<
   NotificationType,
@@ -83,28 +80,37 @@ const filters: { label: string; value: NotificationType | "all" }[] = [
 
 export default function NotificationsClient() {
   const [activeFilter, setActiveFilter] = useState<NotificationType | "all">("all");
+  const { notifications, markAllNotificationsRead } = useSharedStore();
 
   const filtered =
     activeFilter === "all"
-      ? mockNotifications
-      : mockNotifications.filter((n) => n.type === activeFilter);
+      ? notifications
+      : notifications.filter((n) => n.type === activeFilter);
 
   const counts = {
-    all: mockNotifications.length,
-    emergency: mockNotifications.filter((n) => n.type === "emergency").length,
-    safe: mockNotifications.filter((n) => n.type === "safe").length,
-    info: mockNotifications.filter((n) => n.type === "info").length,
-    warning: mockNotifications.filter((n) => n.type === "warning").length,
+    all: notifications.length,
+    emergency: notifications.filter((n) => n.type === "emergency").length,
+    safe: notifications.filter((n) => n.type === "safe").length,
+    info: notifications.filter((n) => n.type === "info").length,
+    warning: notifications.filter((n) => n.type === "warning").length,
   };
 
   return (
     <div className="w-full max-w-5xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          All activity from your elderly family member&apos;s device.
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            All activity from your elderly family member&apos;s device.
+          </p>
+        </div>
+        <button
+          onClick={markAllNotificationsRead}
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+        >
+          Mark all as read
+        </button>
       </div>
 
       {/* Filter tabs */}
@@ -144,7 +150,9 @@ export default function NotificationsClient() {
           return (
             <div
               key={notification.id}
-              className={`bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow`}
+              className={`bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow ${
+                !notification.read ? "border-l-4 border-l-blue-500" : ""
+              }`}
             >
               {/* Icon */}
               <NotificationIcon type={notification.type} />
@@ -169,13 +177,10 @@ export default function NotificationsClient() {
                 </p>
               </div>
 
-              {/* Date & Time */}
+              {/* Time */}
               <div className="text-right flex-shrink-0">
                 <p className="text-xs font-medium text-gray-900">
-                  {notification.date}
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {notification.time}
+                  {formatNotificationTime(notification.timestamp)}
                 </p>
               </div>
             </div>

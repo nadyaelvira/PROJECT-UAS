@@ -37,8 +37,8 @@ export const mockNotifications: Notification[] = [
   {
     id: 4,
     type: "info",
-    title: "Safe Radius updated",
-    description: "The safe zone radius has been changed to 5 meters.",
+    title: "Safe Zone updated",
+    description: "The safe zone has been changed to 5 meters.",
     date: "Jul 2, 2026",
     time: "09:10 AM",
   },

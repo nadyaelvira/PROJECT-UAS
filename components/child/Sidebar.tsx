@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSharedStore, formatNotificationTime } from "@/components/shared/sharedStore";
 
 const menuItems = [
   {
@@ -58,6 +60,13 @@ interface SidebarProps {
 
 export default function Sidebar({ isCollapsed }: SidebarProps) {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+  const { getLatestNotification } = useSharedStore();
+  const latestNotif = mounted ? getLatestNotification() : null;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <aside
@@ -120,6 +129,32 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
           })}
         </ul>
       </nav>
+
+      {/* Recent Notifications */}
+      {!isCollapsed && (
+        <div className="px-3 pb-4 overflow-hidden">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 px-3">
+            Recent Notifications
+          </p>
+          {latestNotif ? (
+            <div className="px-3 py-2.5 bg-gray-50 rounded-xl">
+              <div className="flex items-start gap-2.5">
+                <div className={`h-2 w-2 rounded-full mt-1.5 flex-shrink-0 ${
+                  latestNotif.type === "emergency" ? "bg-red-500" :
+                  latestNotif.type === "safe" ? "bg-green-500" :
+                  latestNotif.type === "warning" ? "bg-orange-500" : "bg-blue-500"
+                }`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-gray-900 truncate">{latestNotif.title}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{formatNotificationTime(latestNotif.timestamp)}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="px-3 text-xs text-gray-400">No notifications yet</p>
+          )}
+        </div>
+      )}
 
       {/* Footer */}
       <div className="px-3 py-4 border-t border-gray-100 overflow-hidden">
