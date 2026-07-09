@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import LandingNavbar from '@/components/LandingNavbar';
 import LandingFooter from '@/components/LandingFooter';
 import { useSapaLanguage } from '@/context/SapaLanguageContext';
@@ -13,7 +14,7 @@ export default function SapaLandingPage() {
       <LandingNavbar />
 
       {/* Hero Section */}
-      <section id="home" className="pt-24 pb-16 lg:pt-32 lg:pb-24" style={{ background: 'linear-gradient(to bottom, #1e3a8a, #dbeafe)' }}>
+      <section id="home" className="h-screen flex items-center justify-center" style={{ background: 'linear-gradient(to bottom, #1e3a8a, #dbeafe)' }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl lg:text-7xl font-extrabold text-white mb-4">
             SAPA
@@ -24,15 +25,17 @@ export default function SapaLandingPage() {
           <h2 className="text-2xl lg:text-3xl font-bold text-white leading-tight mb-8">
             {t('hero.title')}
           </h2>
-          <a
-            href="#apa-itu-sapa"
+          <button
+            onClick={() => {
+              document.querySelector('#apa-itu-sapa')?.scrollIntoView({ behavior: 'smooth' });
+            }}
             className="inline-flex items-center gap-2 px-6 py-3 text-base font-semibold text-white bg-[#1e3a8a] rounded-xl hover:bg-[#172554] transition-all shadow-lg hover:shadow-xl"
           >
             {t('hero.ctaLearnMore')}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
-          </a>
+          </button>
         </div>
       </section>
 
@@ -360,9 +363,9 @@ export default function SapaLandingPage() {
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-8">
             {t('cta.title')}
           </h2>
-          <button className="px-8 py-4 text-lg font-semibold text-white bg-[#1e3a8a] rounded-xl hover:bg-[#172554] transition-all shadow-lg">
+          <Link href="/register" className="inline-block px-8 py-4 text-lg font-semibold text-white bg-[#1e3a8a] rounded-xl hover:bg-[#172554] transition-all shadow-lg">
             {t('cta.register')}
-          </button>
+          </Link>
         </div>
       </section>
 
