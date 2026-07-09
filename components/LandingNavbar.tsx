@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useSapaLanguage } from '@/context/SapaLanguageContext';
 
 export default function LandingNavbar() {
@@ -20,7 +21,10 @@ export default function LandingNavbar() {
     setIsMenuOpen(false);
     const element = document.querySelector(href);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const navbarHeight = 64;
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - (window.innerHeight / 2) + (element.scrollHeight / 2) - navbarHeight;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
     }
   };
 
@@ -59,12 +63,12 @@ export default function LandingNavbar() {
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center gap-3">
-              <button className="px-4 py-2 text-sm font-medium text-white hover:text-white/80 transition-colors">
+              <Link href="/login" className="px-4 py-2 text-sm font-medium text-white hover:text-white/80 transition-colors">
                 {t('nav.login')}
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-white bg-[#1e3a8a] rounded-lg hover:bg-[#172554] transition-colors shadow-md">
+              </Link>
+              <Link href="/register" className="px-4 py-2 text-sm font-medium text-white bg-[#1e3a8a] rounded-lg hover:bg-[#172554] transition-colors shadow-md">
                 {t('nav.signIn')}
-              </button>
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -98,12 +102,12 @@ export default function LandingNavbar() {
               </button>
             ))}
             <div className="pt-3 border-t border-gray-100 space-y-2">
-              <button className="w-full px-4 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-lg transition-colors">
+              <Link href="/login" className="block w-full px-4 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-lg transition-colors text-center">
                 {t('nav.login')}
-              </button>
-              <button className="w-full px-4 py-2 text-sm font-medium text-white bg-[#1e3a8a] rounded-lg hover:bg-[#172554] transition-colors shadow-md">
+              </Link>
+              <Link href="/register" className="block w-full px-4 py-2 text-sm font-medium text-white bg-[#1e3a8a] rounded-lg hover:bg-[#172554] transition-colors shadow-md text-center">
                 {t('nav.signIn')}
-              </button>
+              </Link>
             </div>
           </div>
         </div>

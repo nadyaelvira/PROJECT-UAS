@@ -87,6 +87,33 @@ const translations = {
     'cta.register': 'Daftar Sekarang',
     'cta.login': 'Masuk',
 
+    // Auth - Login
+    'auth.login.title': 'Selamat Datang',
+    'auth.login.subtitle': 'Masuk ke akun Anda',
+    'auth.login.email': 'Email',
+    'auth.login.password': 'Password',
+    'auth.login.forgotPassword': 'Lupa password?',
+    'auth.login.submit': 'Masuk',
+    'auth.login.noAccount': 'Belum punya akun?',
+    'auth.login.register': 'Daftar',
+
+    // Auth - Register
+    'auth.register.title': 'Buat Akun Baru',
+    'auth.register.name': 'Nama Lengkap',
+    'auth.register.email': 'Email',
+    'auth.register.password': 'Password',
+    'auth.register.confirmPassword': 'Konfirmasi Password',
+    'auth.register.submit': 'Daftar',
+    'auth.register.hasAccount': 'Sudah punya akun?',
+    'auth.register.login': 'Masuk',
+
+    // Auth - Forgot Password
+    'auth.forgot.title': 'Reset Password',
+    'auth.forgot.subtitle': 'Masukkan email Anda untuk menerima link reset password',
+    'auth.forgot.submit': 'Kirim Link Reset',
+    'auth.forgot.success': 'Link reset password telah dikirim ke email Anda',
+    'auth.forgot.back': 'Kembali ke login',
+
     // Footer
     'footer.description': 'Solusi Aman untuk Pemantauan Lansia. Membantu keluarga menjaga keamanan lansia dengan teknologi GPS dan geofencing.',
     'footer.product': 'Produk',
@@ -176,6 +203,33 @@ const translations = {
     'cta.description': 'Register now and provide the best protection for the elderly you love.',
     'cta.register': 'Register Now',
     'cta.login': 'Login',
+
+    // Auth - Login
+    'auth.login.title': 'Welcome Back',
+    'auth.login.subtitle': 'Sign in to your account',
+    'auth.login.email': 'Email',
+    'auth.login.password': 'Password',
+    'auth.login.forgotPassword': 'Forgot password?',
+    'auth.login.submit': 'Sign In',
+    'auth.login.noAccount': "Don't have an account?",
+    'auth.login.register': 'Register',
+
+    // Auth - Register
+    'auth.register.title': 'Create New Account',
+    'auth.register.name': 'Full Name',
+    'auth.register.email': 'Email',
+    'auth.register.password': 'Password',
+    'auth.register.confirmPassword': 'Confirm Password',
+    'auth.register.submit': 'Register',
+    'auth.register.hasAccount': 'Already have an account?',
+    'auth.register.login': 'Sign In',
+
+    // Auth - Forgot Password
+    'auth.forgot.title': 'Reset Password',
+    'auth.forgot.subtitle': 'Enter your email to receive a password reset link',
+    'auth.forgot.submit': 'Send Reset Link',
+    'auth.forgot.success': 'Password reset link has been sent to your email',
+    'auth.forgot.back': 'Back to login',
 
     // Footer
     'footer.description': 'Safe Solution for Elderly Monitoring. Helping families keep elderly safe with GPS and geofencing technology.',
