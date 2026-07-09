@@ -107,6 +107,19 @@ const translations = {
     'auth.register.hasAccount': 'Sudah punya akun?',
     'auth.register.login': 'Masuk',
 
+    // Auth - Login Errors
+    'auth.login.error.empty': 'Email dan password harus diisi',
+    'auth.login.error.invalid': 'Email atau password salah',
+    'auth.login.error.emailFormat': 'Format email tidak valid',
+    'auth.login.error.passwordMin': 'Password minimal 8 karakter',
+
+    // Auth - Register Errors
+    'auth.register.error.empty': 'Semua field harus diisi',
+    'auth.register.error.emailFormat': 'Format email tidak valid',
+    'auth.register.error.emailExists': 'Email sudah terdaftar',
+    'auth.register.error.passwordMin': 'Password minimal 8 karakter',
+    'auth.register.error.passwordMismatch': 'Konfirmasi password tidak cocok',
+
     // Auth - Forgot Password
     'auth.forgot.title': 'Reset Password',
     'auth.forgot.subtitle': 'Masukkan email Anda untuk menerima link reset password',
@@ -223,6 +236,19 @@ const translations = {
     'auth.register.submit': 'Register',
     'auth.register.hasAccount': 'Already have an account?',
     'auth.register.login': 'Sign In',
+
+    // Auth - Login Errors
+    'auth.login.error.empty': 'Email and password are required',
+    'auth.login.error.invalid': 'Invalid email or password',
+    'auth.login.error.emailFormat': 'Invalid email format',
+    'auth.login.error.passwordMin': 'Password must be at least 8 characters',
+
+    // Auth - Register Errors
+    'auth.register.error.empty': 'All fields are required',
+    'auth.register.error.emailFormat': 'Invalid email format',
+    'auth.register.error.emailExists': 'Email is already registered',
+    'auth.register.error.passwordMin': 'Password must be at least 8 characters',
+    'auth.register.error.passwordMismatch': 'Passwords do not match',
 
     // Auth - Forgot Password
     'auth.forgot.title': 'Reset Password',
