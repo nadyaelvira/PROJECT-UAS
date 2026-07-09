@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Circle,
+  Polyline,
   Popup,
   useMap,
 } from "react-leaflet";
@@ -29,8 +30,14 @@ const homeIcon = createIcon("#16A34A");
 
 function MapBoundsUpdater({ center }: { center: [number, number] }) {
   const map = useMap();
+  const prevCenter = useRef<[number, number]>(center);
   useEffect(() => {
-    map.setView(center, 16);
+    const [prevLat, prevLng] = prevCenter.current;
+    const [lat, lng] = center;
+    if (prevLat !== lat || prevLng !== lng) {
+      map.panTo(center);
+      prevCenter.current = center;
+    }
   }, [map, center]);
   return null;
 }
@@ -58,6 +65,8 @@ export default function ElderlyHomeMap({
     setMounted(true);
   }, []);
 
+  const center = useMemo<[number, number]>(() => [homeLat, homeLng], [homeLat, homeLng]);
+
   if (!mounted) {
     return (
       <div className="h-full w-full rounded-2xl bg-gray-100 flex items-center justify-center">
@@ -69,13 +78,12 @@ export default function ElderlyHomeMap({
     );
   }
 
-  const center: [number, number] = [homeLat, homeLng];
-
   return (
     <div className="h-full w-full rounded-2xl overflow-hidden border border-gray-200">
       <MapContainer
         center={center}
         zoom={16}
+        maxZoom={18}
         scrollWheelZoom={true}
         className="h-full w-full"
         zoomControl={false}
@@ -90,12 +98,13 @@ export default function ElderlyHomeMap({
 
         {/* Safe zone circle */}
         <Circle
+          key={`${homeLat}-${homeLng}-${safeZoneDistance}`}
           center={[homeLat, homeLng]}
-          radius={safeZoneDistance * 1000}
+          radius={safeZoneDistance}
           pathOptions={{
             color: "#2563EB",
             fillColor: "#2563EB",
-            fillOpacity: 0.08,
+            fillOpacity: 0.15,
             weight: 2,
             dashArray: "8 4",
           }}
@@ -122,19 +131,23 @@ export default function ElderlyHomeMap({
             </div>
           </Popup>
         </Marker>
-      </MapContainer>
 
-      {/* Status Badge */}
-      <div
-        className="absolute top-4 right-4 px-3 py-1.5 rounded-full text-xs font-medium z-[1000]"
-        style={{
-          background: isOutsideZone ? "#FEF2F2" : "#F0FDF4",
-          color: isOutsideZone ? "#B91C1C" : "#15803D",
-          border: `1px solid ${isOutsideZone ? "#FECACA" : "#BBF7D0"}`,
-        }}
-      >
-        {isOutsideZone ? "Outside Safe Zone" : "Inside Safe Zone"}
-      </div>
+        {/* Route line if outside zone */}
+        {isOutsideZone && (
+          <Polyline
+            positions={[
+              [elderlyLat, elderlyLng],
+              [homeLat, homeLng],
+            ]}
+            pathOptions={{
+              color: "#DC2626",
+              weight: 3,
+              dashArray: "10 6",
+              opacity: 0.8,
+            }}
+          />
+        )}
+      </MapContainer>
     </div>
   );
 }

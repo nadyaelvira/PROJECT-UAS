@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSharedStore, calculateDistance } from "@/components/shared/sharedStore";
+import { usePollElderlyLocation } from "@/hooks/usePollElderlyLocation";
+import { reverseGeocode } from "@/lib/reverseGeocode";
 
 const ElderlyHomeMap = dynamic(() => import("@/components/elderly/ElderlyHomeMap"), {
   ssr: false,
@@ -20,9 +22,12 @@ const ElderlyHomeMap = dynamic(() => import("@/components/elderly/ElderlyHomeMap
 export default function ElderlyHomePage() {
   const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [realAddress, setRealAddress] = useState("");
   const {
     elderlyLocation,
     homeLocation,
+    homeName,
+    safeZoneEnabled,
     safeZoneDistance,
     isOutsideZone,
     emergencyMode,
@@ -34,6 +39,14 @@ export default function ElderlyHomePage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  usePollElderlyLocation(mounted);
+
+  // Reverse geocode elderly location
+  useEffect(() => {
+    if (!mounted) return;
+    reverseGeocode(elderlyLocation.lat, elderlyLocation.lng).then(setRealAddress);
+  }, [mounted, elderlyLocation.lat, elderlyLocation.lng]);
 
   const distance = mounted
     ? calculateDistance(
@@ -143,8 +156,8 @@ export default function ElderlyHomePage() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-500">{t("home.safeZone")}</p>
-              <p className="text-lg font-semibold text-gray-900 mt-1">{t("home.home")}</p>
-              <p className="text-sm text-gray-500 mt-0.5">{homeLocation.address}</p>
+              <p className="text-lg font-semibold text-gray-900 mt-1">{mounted ? homeName : "Rumah"}</p>
+              <p className="text-sm text-gray-500 mt-0.5">{mounted ? homeLocation.address : "Loading..."}</p>
             </div>
             <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-blue-50">
               <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -155,11 +168,13 @@ export default function ElderlyHomePage() {
           <div className="mt-3 flex gap-2">
             <div className="flex-1 bg-blue-50 rounded-xl p-3">
               <p className="text-xs text-gray-500 mb-1">{t("home.radius")}</p>
-              <p className="text-sm font-bold text-blue-600">{safeZoneDistance}m</p>
+              <p className="text-sm font-bold text-blue-600" suppressHydrationWarning>{safeZoneDistance}m</p>
             </div>
             <div className="flex-1 bg-green-50 rounded-xl p-3">
               <p className="text-xs text-gray-500 mb-1">{t("home.status")}</p>
-              <p className="text-sm font-bold text-green-600">{t("home.safe")}</p>
+              <p className="text-sm font-bold text-green-600">
+                {safeZoneEnabled ? t("home.safe") : "Inactive"}
+              </p>
             </div>
           </div>
         </div>
@@ -169,7 +184,7 @@ export default function ElderlyHomePage() {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-500">{t("home.currentLocation")}</p>
-              <p className="text-lg font-semibold text-gray-900 mt-1">{elderlyLocation.address}</p>
+              <p className="text-lg font-semibold text-gray-900 mt-1">{mounted ? (realAddress || elderlyLocation.address) : "Loading..."}</p>
             </div>
             <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-gray-50">
               <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -186,14 +201,23 @@ export default function ElderlyHomePage() {
             <div>
               <p className="text-sm font-medium text-gray-500">{t("home.deviceBattery")}</p>
               <div className="mt-2 flex items-end gap-2">
-                <p className="text-3xl font-bold text-gray-900">78%</p>
+                <p className="text-3xl font-bold text-gray-900">{battery}%</p>
               </div>
               <div className="mt-2 h-2 w-24 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full rounded-full bg-green-500 transition-all" style={{ width: "78%" }} />
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    battery > 50 ? "bg-green-500" : battery > 20 ? "bg-yellow-500" : "bg-red-500"
+                  }`}
+                  style={{ width: `${battery}%` }}
+                />
               </div>
             </div>
-            <div className="h-12 w-12 rounded-xl flex items-center justify-center bg-green-50">
-              <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${
+              battery > 50 ? "bg-green-50" : battery > 20 ? "bg-yellow-50" : "bg-red-50"
+            }`}>
+              <svg className={`h-6 w-6 ${
+                battery > 50 ? "text-green-600" : battery > 20 ? "text-yellow-600" : "text-red-600"
+              }`} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 10.5h.375c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125H21M3.75 18h15A2.25 2.25 0 0021 15.75v-6a2.25 2.25 0 00-2.25-2.25h-15A2.25 2.25 0 001.5 9.75v6A2.25 2.25 0 003.75 18z" />
               </svg>
             </div>

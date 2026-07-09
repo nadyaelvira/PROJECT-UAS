@@ -4,31 +4,12 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useSharedStore, calculateDistance } from "@/components/shared/sharedStore";
+import { usePollElderlyLocation } from "@/hooks/usePollElderlyLocation";
 
 const NavigationMap = dynamic(
   () => import("@/components/child/navigation/NavigationMap"),
   { ssr: false }
 );
-
-// Throttle helper: only run once per interval ms
-function useThrottle(callback: () => void, delay: number) {
-  const lastRun = useRef(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  return useCallback(() => {
-    const now = Date.now();
-    if (now - lastRun.current >= delay) {
-      lastRun.current = now;
-      callback();
-    } else {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        lastRun.current = Date.now();
-        callback();
-      }, delay - (now - lastRun.current));
-    }
-  }, [callback, delay]);
-}
 
 export default function NavigationPage() {
   const router = useRouter();
@@ -43,11 +24,14 @@ export default function NavigationPage() {
   const [distance, setDistance] = useState(0);
   const [eta, setEta] = useState("");
   const [speed, setSpeed] = useState(0);
+  const [followChild, setFollowChild] = useState(true);
   const prevPosRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  usePollElderlyLocation(mounted);
 
   // Get child's real GPS location
   useEffect(() => {
@@ -64,16 +48,16 @@ export default function NavigationPage() {
       () => {
         setChildLocation({ lat: elderlyLocation.lat + 0.001, lng: elderlyLocation.lng + 0.001 });
       },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+      { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
   }, [mounted, setChildLocation, elderlyLocation.lat, elderlyLocation.lng]);
 
-  // Calculate speed from position changes
+  // Calculate speed from child's own movement
   useEffect(() => {
     if (!prevPosRef.current) {
-      prevPosRef.current = { lat: elderlyLocation.lat, lng: elderlyLocation.lng, time: Date.now() };
+      prevPosRef.current = { lat: childLocation.lat, lng: childLocation.lng, time: Date.now() };
       return;
     }
 
@@ -82,14 +66,14 @@ export default function NavigationPage() {
     const timeDiff = (now - prev.time) / 1000;
 
     if (timeDiff > 1) {
-      const dist = calculateDistance(prev.lat, prev.lng, elderlyLocation.lat, elderlyLocation.lng);
+      const dist = calculateDistance(prev.lat, prev.lng, childLocation.lat, childLocation.lng);
       const spd = dist / timeDiff;
       setSpeed(spd * 3.6);
-      prevPosRef.current = { lat: elderlyLocation.lat, lng: elderlyLocation.lng, time: now };
+      prevPosRef.current = { lat: childLocation.lat, lng: childLocation.lng, time: now };
     }
-  }, [elderlyLocation.lat, elderlyLocation.lng]);
+  }, [childLocation.lat, childLocation.lng]);
 
-  // Fetch route from OSRM — throttled to avoid excessive calls
+  // Fetch route from OSRM
   const doFetchRoute = useCallback(async () => {
     const url = `https://router.project-osrm.org/route/v1/foot/${childLocation.lng},${childLocation.lat};${elderlyLocation.lng},${elderlyLocation.lat}?overview=full&geometries=geojson`;
 
@@ -135,13 +119,13 @@ export default function NavigationPage() {
     }
   }, [childLocation.lat, childLocation.lng, elderlyLocation.lat, elderlyLocation.lng]);
 
-  const fetchRoute = useThrottle(doFetchRoute, 10000);
-
-  // Refetch route when locations change
+  // Refetch route every 10 seconds
   useEffect(() => {
     if (!mounted) return;
-    fetchRoute();
-  }, [mounted, fetchRoute]);
+    const interval = setInterval(doFetchRoute, 10000);
+    doFetchRoute();
+    return () => clearInterval(interval);
+  }, [mounted, doFetchRoute]);
 
   if (!mounted) {
     return (
@@ -213,21 +197,40 @@ export default function NavigationPage() {
             elderlyLat={elderlyLocation.lat}
             elderlyLng={elderlyLocation.lng}
             routeCoords={routeCoords}
+            followChild={followChild}
           />
 
-          {/* Center on Elderly FAB */}
-          <button
-            onClick={() => {
-              // This triggers the map to re-center via a custom event
-              window.dispatchEvent(new CustomEvent("centerOnElderly"));
-            }}
-            className="absolute bottom-4 right-4 z-[1000] h-12 w-12 bg-white rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
-          >
-            <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
-          </button>
+          {/* Floating Buttons */}
+          <div className="absolute bottom-4 right-4 z-[1000] flex flex-col gap-2">
+            {/* Preview / Center on Route */}
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("previewRoute"));
+              }}
+              className="h-12 w-12 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-colors"
+              title="Pratinjau Rute"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+              </svg>
+            </button>
+
+            {/* Follow Child Toggle */}
+            <button
+              onClick={() => setFollowChild(!followChild)}
+              className={`h-12 w-12 rounded-full shadow-lg flex items-center justify-center transition-colors ${
+                followChild
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+              }`}
+              title={followChild ? "Mengikuti Anda" : "Mengikuti Lansia"}
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>

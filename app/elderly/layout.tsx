@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import ElderlySidebar from "@/components/ElderlySidebar";
 import ElderlyNavbar from "@/components/ElderlyNavbar";
 import { TextSizeProvider } from "@/context/TextSizeContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { useSharedStore } from "@/components/shared/sharedStore";
-import { useGpsSimulation } from "@/hooks/useGpsSimulation";
 
 type AlarmType = "alarm1" | "alarm2" | "alarm3";
 
@@ -98,31 +97,40 @@ function EmergencyGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function GpsProvider({ children }: { children: React.ReactNode }) {
-  useGpsSimulation();
-  return <>{children}</>;
-}
-
 export default function ElderlyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const handleMouseEnter = useCallback(() => {
+    setIsCollapsed(false);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsCollapsed(true);
+  }, []);
+
   return (
     <LanguageProvider>
       <TextSizeProvider>
         <EmergencyGuard>
-          <GpsProvider>
-            <div className="flex h-screen bg-gray-50">
-              <ElderlySidebar />
-              <div className="flex flex-col flex-1 min-w-0 w-full overflow-hidden">
-                <ElderlyNavbar />
-                <main className="flex-1 overflow-y-auto p-6 min-h-0 w-full">
-                  {children}
-                </main>
-              </div>
+          <div className="flex h-screen bg-gray-50">
+            <div
+              className="flex-shrink-0"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <ElderlySidebar isCollapsed={isCollapsed} />
             </div>
-          </GpsProvider>
+            <div className="flex flex-col flex-1 min-w-0 w-full overflow-hidden">
+              <ElderlyNavbar />
+              <main className="flex-1 overflow-y-auto p-6 min-h-0 w-full">
+                {children}
+              </main>
+            </div>
+          </div>
         </EmergencyGuard>
       </TextSizeProvider>
     </LanguageProvider>

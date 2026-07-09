@@ -32,8 +32,10 @@ interface SharedState {
   elderlyLocation: { lat: number; lng: number; address: string };
   childLocation: { lat: number; lng: number };
   homeLocation: { lat: number; lng: number; address: string };
+  homeName: string; // Name of safe zone center (e.g., "Rumah", "Toko Es Krim")
 
   // Safe Zone
+  safeZoneEnabled: boolean;
   safeZoneDistance: number; // meters
 
   // Status
@@ -61,8 +63,10 @@ interface SharedActions {
   setElderlyLocation: (loc: { lat: number; lng: number; address: string }) => void;
   setChildLocation: (loc: { lat: number; lng: number }) => void;
   setHomeLocation: (loc: { lat: number; lng: number; address: string }) => void;
+  setHomeName: (name: string) => void;
 
   // Safe Zone
+  setSafeZoneEnabled: (enabled: boolean) => void;
   setSafeZoneDistance: (distance: number) => void;
 
   // Emergency
@@ -106,7 +110,9 @@ const defaultState: SharedState = {
     lng: 112.0161,
     address: "Jl. Sukarno No.70, Kediri",
   },
+  safeZoneEnabled: true,
   safeZoneDistance: 5,
+  homeName: "Rumah",
   emergencyMode: false,
   sosActive: false,
   isOutsideZone: false,
@@ -137,6 +143,8 @@ function saveState(state: SharedState) {
       elderlyLocation: state.elderlyLocation,
       childLocation: state.childLocation,
       homeLocation: state.homeLocation,
+      homeName: state.homeName,
+      safeZoneEnabled: state.safeZoneEnabled,
       safeZoneDistance: state.safeZoneDistance,
       notifications: state.notifications,
       emergencyMode: state.emergencyMode,
@@ -168,6 +176,12 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
   const [safeZoneDistance, setSafeZoneDistanceState] = useState(
     saved.current.safeZoneDistance ?? defaultState.safeZoneDistance
   );
+  const [safeZoneEnabled, setSafeZoneEnabledState] = useState(
+    saved.current.safeZoneEnabled ?? defaultState.safeZoneEnabled
+  );
+  const [homeName, setHomeNameState] = useState(
+    saved.current.homeName ?? defaultState.homeName
+  );
   const [emergencyMode, setEmergencyMode] = useState(false);
   const [sosActive, setSosActive] = useState(false);
   const [isOutsideZone, setIsOutsideZoneState] = useState(false);
@@ -175,6 +189,43 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     saved.current.notifications ?? []
   );
   const [battery, setBattery] = useState(saved.current.battery ?? 78);
+
+  // Detect real device battery via Battery API
+  useEffect(() => {
+    let batteryManager: any = null;
+    let mounted = true;
+    let handleLevelChange: (() => void) | null = null;
+
+    async function initBattery() {
+      try {
+        if ("getBattery" in navigator) {
+          batteryManager = await (navigator as any).getBattery();
+          if (mounted && batteryManager) {
+            setBattery(Math.round(batteryManager.level * 100));
+          }
+          handleLevelChange = () => {
+            if (mounted && batteryManager) {
+              setBattery(Math.round(batteryManager.level * 100));
+            }
+          };
+          batteryManager.addEventListener("levelchange", handleLevelChange);
+          batteryManager.addEventListener("chargingchange", handleLevelChange);
+        }
+      } catch {
+        // Battery API not available, keep default value
+      }
+    }
+
+    initBattery();
+
+    return () => {
+      mounted = false;
+      if (batteryManager && handleLevelChange) {
+        batteryManager.removeEventListener("levelchange", handleLevelChange);
+        batteryManager.removeEventListener("chargingchange", handleLevelChange);
+      }
+    };
+  }, []);
   const [alarmEnabled, setAlarmEnabledState] = useState(true);
   const [alarmSound, setAlarmSoundState] = useState<"alarm1" | "alarm2" | "alarm3">("alarm1");
   const [alarmVolume, setAlarmVolumeState] = useState(70);
@@ -187,6 +238,8 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     elderlyLocation,
     childLocation,
     homeLocation,
+    homeName,
+    safeZoneEnabled,
     safeZoneDistance,
     emergencyMode,
     sosActive,
@@ -202,6 +255,8 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     elderlyLocation,
     childLocation,
     homeLocation,
+    homeName,
+    safeZoneEnabled,
     safeZoneDistance,
     emergencyMode,
     sosActive,
@@ -216,7 +271,7 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     saveState(stateRef.current);
-  }, [elderlyLocation, childLocation, homeLocation, safeZoneDistance, notifications, emergencyMode]);
+  }, [elderlyLocation, childLocation, homeLocation, homeName, safeZoneEnabled, safeZoneDistance, notifications, emergencyMode]);
 
   // ─── Cross-tab sync via storage event ─────────────────────────────────────
   useEffect(() => {
@@ -241,6 +296,12 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
         }
         if (parsed.safeZoneDistance !== undefined) {
           setSafeZoneDistanceState(parsed.safeZoneDistance);
+        }
+        if (parsed.safeZoneEnabled !== undefined) {
+          setSafeZoneEnabledState(parsed.safeZoneEnabled);
+        }
+        if (parsed.homeName !== undefined) {
+          setHomeNameState(parsed.homeName);
         }
       } catch {}
     }
@@ -271,8 +332,16 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const setSafeZoneEnabled = useCallback((enabled: boolean) => {
+    setSafeZoneEnabledState(enabled);
+  }, []);
+
   const setSafeZoneDistance = useCallback((distance: number) => {
     setSafeZoneDistanceState(distance);
+  }, []);
+
+  const setHomeName = useCallback((name: string) => {
+    setHomeNameState(name);
   }, []);
 
   const activateEmergencyMode = useCallback(() => {
@@ -420,6 +489,8 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     elderlyLocation,
     childLocation,
     homeLocation,
+    homeName,
+    safeZoneEnabled,
     safeZoneDistance,
     emergencyMode,
     sosActive,
@@ -433,6 +504,8 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     setElderlyLocation,
     setChildLocation,
     setHomeLocation,
+    setHomeName,
+    setSafeZoneEnabled,
     setSafeZoneDistance,
     activateEmergencyMode,
     deactivateEmergencyMode,

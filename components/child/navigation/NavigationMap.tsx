@@ -56,31 +56,45 @@ function FitBounds({
   return null;
 }
 
-// Center on elderly when FAB is clicked, and auto-follow with debounce
-function ElderlyFollower({
+// Follow child position and handle preview route
+function ChildFollower({
+  childPos,
   elderlyPos,
+  routeCoords,
+  followChild,
 }: {
+  childPos: [number, number];
   elderlyPos: [number, number];
+  routeCoords: [number, number][];
+  followChild: boolean;
 }) {
   const map = useMap();
   const lastPanRef = useRef(0);
 
+  // Preview route: fit map to show full route
   useEffect(() => {
-    function handleCenter() {
-      map.flyTo(elderlyPos, 17, { duration: 1 });
+    function handlePreview() {
+      if (routeCoords.length > 0) {
+        const bounds = L.latLngBounds(routeCoords);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      } else {
+        const bounds = L.latLngBounds([childPos, elderlyPos]);
+        map.fitBounds(bounds, { padding: [60, 60] });
+      }
     }
-    window.addEventListener("centerOnElderly", handleCenter);
-    return () => window.removeEventListener("centerOnElderly", handleCenter);
-  }, [map, elderlyPos]);
+    window.addEventListener("previewRoute", handlePreview);
+    return () => window.removeEventListener("previewRoute", handlePreview);
+  }, [map, childPos, elderlyPos, routeCoords]);
 
-  // Auto-follow: only pan every 8 seconds to avoid jitter
+  // Follow child movement: pan every 5 seconds
   useEffect(() => {
+    if (!followChild) return;
     const now = Date.now();
-    if (now - lastPanRef.current > 8000) {
+    if (now - lastPanRef.current > 5000) {
       lastPanRef.current = now;
-      map.panTo(elderlyPos, { animate: true, duration: 0.5 });
+      map.panTo(childPos, { animate: true, duration: 0.5 });
     }
-  }, [map, elderlyPos]);
+  }, [map, childPos, followChild]);
 
   return null;
 }
@@ -91,6 +105,7 @@ interface NavigationMapProps {
   elderlyLat: number;
   elderlyLng: number;
   routeCoords: [number, number][];
+  followChild: boolean;
 }
 
 export default function NavigationMap({
@@ -99,6 +114,7 @@ export default function NavigationMap({
   elderlyLat,
   elderlyLng,
   routeCoords,
+  followChild,
 }: NavigationMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -140,14 +156,19 @@ export default function NavigationMap({
         />
 
         <FitBounds childPos={childPos} elderlyPos={elderlyPos} />
-        <ElderlyFollower elderlyPos={elderlyPos} />
+        <ChildFollower
+          childPos={childPos}
+          elderlyPos={elderlyPos}
+          routeCoords={routeCoords}
+          followChild={followChild}
+        />
 
         {/* Child marker */}
         <Marker position={childPos} icon={childIcon}>
           <Popup>
             <div className="text-center p-1">
-              <p className="font-semibold text-green-700">You (Child)</p>
-              <p className="text-xs text-gray-500">Current location</p>
+              <p className="font-semibold text-green-700">Anda (Anak)</p>
+              <p className="text-xs text-gray-500">Lokasi saat ini</p>
             </div>
           </Popup>
         </Marker>
@@ -156,8 +177,8 @@ export default function NavigationMap({
         <Marker position={elderlyPos} icon={elderlyIcon}>
           <Popup>
             <div className="text-center p-1">
-              <p className="font-semibold text-red-700">Elderly</p>
-              <p className="text-xs text-gray-500">Target location</p>
+              <p className="font-semibold text-red-700">Lansia</p>
+              <p className="text-xs text-gray-500">Lokasi tujuan</p>
             </div>
           </Popup>
         </Marker>
@@ -183,15 +204,15 @@ export default function NavigationMap({
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500 border-2 border-white shadow" />
-            <span className="text-[10px] text-gray-600">You</span>
+            <span className="text-[10px] text-gray-600">Anda</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow" />
-            <span className="text-[10px] text-gray-600">Elderly</span>
+            <span className="text-[10px] text-gray-600">Lansia</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-1 bg-blue-500 rounded" />
-            <span className="text-[10px] text-gray-600">Route</span>
+            <span className="text-[10px] text-gray-600">Rute</span>
           </div>
         </div>
       </div>

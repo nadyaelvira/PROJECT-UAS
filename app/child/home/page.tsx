@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useSharedStore } from '@/components/shared/sharedStore';
 
 const LiveLocationMap = dynamic(() => import('@/components/LiveLocationMap'), {
   ssr: false,
@@ -19,6 +20,7 @@ const CURRENT_POSITION: [number, number] = [-7.9664, 112.6328];
 const SAFE_ZONE_RADIUS = 5;
 
 export default function ChildHomePage() {
+  const { battery } = useSharedStore();
   const distanceFromZone = 3;
 
   return (
@@ -180,12 +182,19 @@ export default function ChildHomePage() {
             <div className="text-center py-4">
               <div className="relative inline-block mb-3">
                 <div className="w-20 h-10 bg-white border-2 border-gray-200 rounded-lg relative overflow-hidden">
-                  <div className="absolute left-1 top-1 bottom-1 w-[70%] bg-green-500 rounded"></div>
+                  <div
+                    className={`absolute left-1 top-1 bottom-1 rounded ${
+                      battery > 50 ? "bg-green-500" : battery > 20 ? "bg-yellow-500" : "bg-red-500"
+                    }`}
+                    style={{ width: `${Math.max(5, battery * 0.9)}%` }}
+                  />
                 </div>
                 <div className="absolute right-[-6px] top-1/2 transform -translate-y-1/2 w-1.5 h-4 bg-gray-300 rounded-r"></div>
               </div>
-              <p className="text-2xl font-bold text-gray-900">78%</p>
-              <p className="text-xs text-gray-500 mt-1">Good Condition</p>
+              <p className="text-2xl font-bold text-gray-900">{battery}%</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {battery > 50 ? "Good Condition" : battery > 20 ? "Moderate" : "Low Battery"}
+              </p>
             </div>
           </div>
 

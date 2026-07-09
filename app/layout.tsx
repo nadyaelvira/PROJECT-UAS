@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SafeElder",
-  description: "Elderly Monitoring System",
+  title: "SAPA",
+  description: "Solusi Aman untuk Pemantauan Lansia",
 };
 
 export default function RootLayout({

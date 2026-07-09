@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -31,9 +31,28 @@ const homeIcon = createIcon("#16A34A");
 
 function MapBoundsUpdater({ center }: { center: [number, number] }) {
   const map = useMap();
+  const prevCenter = useRef<[number, number]>(center);
   useEffect(() => {
-    map.setView(center, 16);
+    const [prevLat, prevLng] = prevCenter.current;
+    const [lat, lng] = center;
+    if (prevLat !== lat || prevLng !== lng) {
+      map.panTo(center);
+      prevCenter.current = center;
+    }
   }, [map, center]);
+  return null;
+}
+
+function MapClickHandler({ onClick }: { onClick: (lat: number, lng: number) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!onClick) return;
+    const handler = (e: L.LeafletMouseEvent) => {
+      onClick(e.latlng.lat, e.latlng.lng);
+    };
+    map.on("click", handler);
+    return () => { map.off("click", handler); };
+  }, [map, onClick]);
   return null;
 }
 
@@ -44,6 +63,7 @@ interface ElderlyMapProps {
   homeLng: number;
   safeRadius: number;
   isOutsideZone: boolean;
+  onMapClick?: (lat: number, lng: number) => void;
 }
 
 export default function ElderlyMap({
@@ -53,12 +73,15 @@ export default function ElderlyMap({
   homeLng,
   safeRadius,
   isOutsideZone,
+  onMapClick,
 }: ElderlyMapProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const center = useMemo<[number, number]>(() => [homeLat, homeLng], [homeLat, homeLng]);
 
   if (!mounted) {
     return (
@@ -71,13 +94,12 @@ export default function ElderlyMap({
     );
   }
 
-  const center: [number, number] = [homeLat, homeLng];
-
   return (
     <div className="h-full w-full rounded-2xl overflow-hidden border border-gray-200">
       <MapContainer
         center={center}
         zoom={16}
+        maxZoom={18}
         scrollWheelZoom={true}
         className="h-full w-full"
         zoomControl={false}
@@ -89,15 +111,17 @@ export default function ElderlyMap({
         />
 
         <MapBoundsUpdater center={center} />
+        {onMapClick && <MapClickHandler onClick={onMapClick} />}
 
         {/* Safe zone circle */}
         <Circle
+          key={`${homeLat}-${homeLng}-${safeRadius}`}
           center={[homeLat, homeLng]}
-          radius={safeRadius * 1000}
+          radius={safeRadius}
           pathOptions={{
             color: "#2563EB",
             fillColor: "#2563EB",
-            fillOpacity: 0.08,
+            fillOpacity: 0.15,
             weight: 2,
             dashArray: "8 4",
           }}
