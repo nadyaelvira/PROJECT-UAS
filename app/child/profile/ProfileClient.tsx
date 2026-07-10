@@ -26,8 +26,19 @@ export default function ProfileClient() {
   const { profile, updateProfile } = useUserProfile();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(profile);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLanguage();
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      sessionStorage.clear();
+      localStorage.clear();
+      window.location.replace("/sapa");
+    }, 400);
+  };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -118,11 +129,51 @@ export default function ProfileClient() {
             </button>
           )}
 
-          <button className="w-full bg-red-50 hover:bg-red-100 text-red-600 text-sm font-semibold py-3 px-6 rounded-xl border border-red-200 transition-colors">
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="w-full bg-red-50 hover:bg-red-100 text-red-600 text-sm font-semibold py-3 px-6 rounded-xl border border-red-200 transition-colors"
+          >
             {t("child.profile.logout")}
           </button>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isLoggingOut ? "opacity-0" : "opacity-100"}`}
+            onClick={() => !isLoggingOut && setShowLogoutModal(false)}
+          />
+          <div className={`relative bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6 transition-all duration-300 ${isLoggingOut ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}>
+            <div className="flex flex-col items-center text-center">
+              <div className="h-14 w-14 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                <svg className="h-7 w-7 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">{t("child.profile.logout")}</h3>
+              <p className="text-sm text-gray-500 mb-6">Apakah kamu yakin ingin keluar dari akun?</p>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => setShowLogoutModal(false)}
+                  disabled={isLoggingOut}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-3 px-6 rounded-xl transition-colors disabled:opacity-50"
+                >
+                  {isLoggingOut ? "Keluar..." : "Ya, Keluar"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
