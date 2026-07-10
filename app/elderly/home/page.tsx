@@ -34,7 +34,32 @@ export default function ElderlyHomePage() {
     sosActive,
     triggerSOS,
     battery,
+    isPaired,
+    pairedByName,
+    verifyPairingCode,
   } = useSharedStore();
+
+  // Pairing state
+  const [pairInput, setPairInput] = useState("");
+  const [pairError, setPairError] = useState("");
+  const [pairSuccess, setPairSuccess] = useState(false);
+
+  const handlePairConnect = () => {
+    setPairError("");
+    setPairSuccess(false);
+    if (pairInput.length !== 6) {
+      setPairError(t("elderly.pairing.error"));
+      return;
+    }
+    const success = verifyPairingCode(pairInput, "Anak/Keluarga");
+    if (success) {
+      setPairSuccess(true);
+      setPairInput("");
+      setTimeout(() => setPairSuccess(false), 3000);
+    } else {
+      setPairError(t("elderly.pairing.error"));
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -59,7 +84,64 @@ export default function ElderlyHomePage() {
   const distanceMeters = Math.round(distance);
 
   return (
-    <div className="flex gap-6 h-full">
+    <div>
+      {/* Pairing Card */}
+      {!isPaired && (
+        <div className="mb-6 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.318a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364L4.34 8.374" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">{t("elderly.pairing.title")}</p>
+              <p className="text-xs text-gray-500">{t("child.pairing.codeHint")}</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={pairInput}
+              onChange={(e) => {
+                setPairInput(e.target.value.toUpperCase().slice(0, 6));
+                setPairError("");
+              }}
+              placeholder={t("elderly.pairing.inputPlaceholder")}
+              maxLength={6}
+              className="flex-1 text-center text-lg font-bold tracking-[0.2em] bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+            />
+            <button
+              onClick={handlePairConnect}
+              disabled={pairInput.length !== 6}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm font-semibold py-3 px-6 rounded-xl transition-colors"
+            >
+              {t("elderly.pairing.connect")}
+            </button>
+          </div>
+          {pairError && (
+            <p className="mt-2 text-xs text-red-600">{pairError}</p>
+          )}
+          {pairSuccess && (
+            <p className="mt-2 text-xs text-green-600">{t("elderly.pairing.success")}</p>
+          )}
+        </div>
+      )}
+
+      {isPaired && (
+        <div className="mb-6 bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+            <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.318a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364L4.34 8.374" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-green-800">{t("elderly.pairing.paired")} {pairedByName || "Anak/Keluarga"}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-6 h-full">
       {/* Left: Map */}
       <div className="flex-1 min-w-0">
         <div className="h-[calc(100vh-8rem)]">
@@ -255,6 +337,7 @@ export default function ElderlyHomePage() {
           </button>
         </div>
       </div>
+    </div>
     </div>
   );
 }

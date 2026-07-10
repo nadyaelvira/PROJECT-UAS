@@ -56,6 +56,11 @@ interface SharedState {
 
   // Elderly profile (cached from elderlyProfile store)
   elderlyProfile: ElderlyProfile;
+
+  // Pairing
+  pairingCode: string | null;
+  isPaired: boolean;
+  pairedByName: string | null;
 }
 
 interface SharedActions {
@@ -94,6 +99,11 @@ interface SharedActions {
 
   // Profile
   refreshProfile: () => void;
+
+  // Pairing
+  generatePairingCode: () => string;
+  verifyPairingCode: (code: string, childName: string) => boolean;
+  clearPairing: () => void;
 }
 
 // ─── Default data ─────────────────────────────────────────────────────────────
@@ -127,6 +137,7 @@ const defaultState: SharedState = {
 // ─── Storage helpers ──────────────────────────────────────────────────────────
 
 const STORAGE_KEY = "safeelder_shared_state";
+const PAIRING_STORAGE_KEY = "safeelder_pairing_state";
 
 function loadState(): Partial<SharedState> {
   if (typeof window === "undefined") return {};
@@ -151,6 +162,38 @@ function saveState(state: SharedState) {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   } catch {}
+}
+
+// ─── Pairing State ──────────────────────────────────────────────────────────
+
+interface PairingState {
+  pairingCode: string | null;
+  isPaired: boolean;
+  pairedByName: string | null;
+}
+
+function loadPairingState(): PairingState {
+  if (typeof window === "undefined") return { pairingCode: null, isPaired: false, pairedByName: null };
+  try {
+    const raw = localStorage.getItem(PAIRING_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { pairingCode: null, isPaired: false, pairedByName: null };
+}
+
+function savePairingState(state: PairingState) {
+  try {
+    localStorage.setItem(PAIRING_STORAGE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+function generateCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -232,6 +275,32 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
   const [elderlyProfile, setElderlyProfile] = useState<ElderlyProfile>(
     getElderlyProfile()
   );
+
+  // Pairing state
+  const savedPairing = useRef(loadPairingState());
+  const [pairingCode, setPairingCodeState] = useState<string | null>(savedPairing.current.pairingCode);
+  const [isPaired, setIsPaired] = useState<boolean>(savedPairing.current.isPaired);
+  const [pairedByName, setPairedByName] = useState<string | null>(savedPairing.current.pairedByName);
+
+  // Persist pairing state
+  useEffect(() => {
+    savePairingState({ pairingCode, isPaired, pairedByName });
+  }, [pairingCode, isPaired, pairedByName]);
+
+  // Cross-tab sync for pairing
+  useEffect(() => {
+    function handlePairingStorage(e: StorageEvent) {
+      if (e.key !== PAIRING_STORAGE_KEY || !e.newValue) return;
+      try {
+        const parsed = JSON.parse(e.newValue);
+        if (parsed.pairingCode !== undefined) setPairingCodeState(parsed.pairingCode);
+        if (parsed.isPaired !== undefined) setIsPaired(parsed.isPaired);
+        if (parsed.pairedByName !== undefined) setPairedByName(parsed.pairedByName);
+      } catch {}
+    }
+    window.addEventListener("storage", handlePairingStorage);
+    return () => window.removeEventListener("storage", handlePairingStorage);
+  }, []);
 
   // Persist on relevant changes
   const stateRef = useRef<SharedState>({
@@ -430,6 +499,32 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     setAlarmVolumeState(volume);
   }, []);
 
+  // ─── Pairing Actions ──────────────────────────────────────────────────────
+
+  const generatePairingCode = useCallback(() => {
+    const code = generateCode();
+    setPairingCodeState(code);
+    setIsPaired(false);
+    setPairedByName(null);
+    return code;
+  }, []);
+
+  const verifyPairingCode = useCallback((code: string, childName: string) => {
+    const stored = loadPairingState();
+    if (stored.pairingCode && stored.pairingCode === code.toUpperCase()) {
+      setIsPaired(true);
+      setPairedByName(childName);
+      return true;
+    }
+    return false;
+  }, []);
+
+  const clearPairing = useCallback(() => {
+    setPairingCodeState(null);
+    setIsPaired(false);
+    setPairedByName(null);
+  }, []);
+
   // ─── Out of Zone detection ────────────────────────────────────────────────
 
   const prevOutsideRef = useRef(isOutsideZone);
@@ -501,6 +596,9 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     alarmSound,
     alarmVolume,
     elderlyProfile,
+    pairingCode,
+    isPaired,
+    pairedByName,
     setElderlyLocation,
     setChildLocation,
     setHomeLocation,
@@ -521,6 +619,9 @@ export function SharedStoreProvider({ children }: { children: ReactNode }) {
     setAlarmEnabled,
     setAlarmSound,
     setAlarmVolume,
+    generatePairingCode,
+    verifyPairingCode,
+    clearPairing,
   };
 
   return (
